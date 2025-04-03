@@ -1,0 +1,66 @@
+/* styles.css */
+
+/* Define colors for dark mode */
+:root {
+    --background-color: #343a40; /* Dark Gray */
+    --primary-color: #007bff; /* Bootstrap Blue */
+    --secondary-color: #6c757d; /* Gray */
+    --text-color: #f8f9fa; /* Light Gray */
+}
+
+/* Set body background and text color */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif; /* Use your preferred font */
+}
+
+/* Headings color */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Navbar styles */
+.navbar {
+    background-color: var(--primary-color);
+}
+
+.navbar a {
+    color: #ffffff; /* White text for navbar links */
+}
+
+.navbar a:hover {
+    color: #f8f9fa; /* Light text on hover */
+}
+
+/* Footer styles */
+footer {
+    background-color: var(--secondary-color);
+    color: #ffffff; /* White text in footer */
+    padding: 10px 0;
+    text-align: center;
+}
+
+/* Input styles */
+.form-control {
+    background-color: #495057; /* Darker input background */
+    color: #f8f9fa; /* Light text for inputs */
+    border: 1px solid #6c757d; /* Light border */
+}
+
+.form-control:focus {
+    background-color: #495057; /* Keep focus background same */
+    color: #f8f9fa; /* Keep focus text color same */
+    border-color: var(--primary-color); /* Primary color border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Bootstrap focus shadow */
+}
