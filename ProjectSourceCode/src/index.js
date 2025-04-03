@@ -57,7 +57,6 @@ db.connect()
     console.log('ERROR', error.message || error);
   });
 
-
   
   app.get('/', (req, res) => {
     res.send("Hello world");
