@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Interactive FullCalendar</title>
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/main.min.css" rel="stylesheet">
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        padding: 20px;
+      }
+      #calendar {
+        max-width: 900px;
+        margin: 20px auto;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+      }
+      form {
+        max-width: 900px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      form input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      form button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      form button:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="calendar"></div>
+
+    <!-- Event Form -->
+    <form id="eventForm">
+      <h2>Add New Event</h2>
+      <label for="eventTitle">Event Title:</label>
+      <input type="text" id="eventTitle" name="eventTitle" required>
+
+      <label for="eventStart">Start Date &amp; Time:</label>
+      <input type="datetime-local" id="eventStart" name="eventStart" required>
+
+      <label for="eventEnd">End Date &amp; Time (optional):</label>
+      <input type="datetime-local" id="eventEnd" name="eventEnd">
+
+      <button type="submit">Add Event</button>
+    </form>
+
+    <script>
+      let calendar;
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          },
+          events: []  // Starts with no events
+        });
+        calendar.render();
+
+        // Listen for form submission to add events
+        const form = document.getElementById('eventForm');
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const title = document.getElementById('eventTitle').value;
+          const start = document.getElementById('eventStart').value;
+          const end = document.getElementById('eventEnd').value;
+
+          // Simple validation: title and start date must be provided
+          if (title && start) {
+            // Add the event to the calendar
+            calendar.addEvent({
+              title: title,
+              start: start,
+              end: end ? end : null  // Use null if end is empty
+            });
+            // Reset the form for the next entry
+            form.reset();
+          } else {
+            alert("Please provide an event title and start date/time.");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
