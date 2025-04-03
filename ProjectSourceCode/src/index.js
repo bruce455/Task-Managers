@@ -57,10 +57,22 @@ db.connect()
   });
 
 
-  
+  // catch all route
 app.get('/', (req, res) => {
-    res.send("Hello world");
-  });
+  if (req.session.user) {
+    return res.redirect('/home'); // Redirect logged-in users to discover
+  }
+  res.redirect('/login'); // Otherwise, go to login page
+});
+
+app.get('/login', (req, res) => {
+  console.log("Session User:", req.session.user);
+  res.render('pages/login');
+});
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
 
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
