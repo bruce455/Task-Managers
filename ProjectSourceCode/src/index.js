@@ -70,6 +70,10 @@ app.get('/login', (req, res) => {
   res.render('pages/login');
 });
 
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
+
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 
