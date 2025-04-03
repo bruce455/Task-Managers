@@ -1,3 +1,15 @@
 Decisions made
 Alternative actions/options discussed
 Follow-up items, including agreed-on roles and responsibilities
+
+
+Meeting 4/3/2025
+Finished Registration Functionality (not working?) Added navbar, header, and footer. Added Relational Database with two tables, users and tasks, with 
+user id as primary key. 
+Working On: Calendar Functionality + tasks, Home Page and Home Page functionality, Login Bug, Session Tracking.
+By Next Week:
+ Expect to have full Log In and registration 
+ Expect to have session Tracking
+ Expect to have fully functioning Calendar with task modal
+ Notification for tasks
+ Priority Algorithm
