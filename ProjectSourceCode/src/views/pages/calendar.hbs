@@ -54,6 +54,89 @@
     </style>
   </head>
   <body>
+      <!-- creating the button-->
+      <div class="custom-container">
+                <button
+                class="btn btn-primary mt-3"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+                >
+                Create Event
+                </button>
+                
+            </div>
+      <!-- Modal -->
+                    <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+          
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Event</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+              <form id="data-form">
+                
+                <!-- Event Name -->
+                <div class="mb-3">
+                  <label for="event_name" class="form-label">Task Title</label>
+                  <input type="text" id="event_name" class="form-control" placeholder="Enter event title" required>
+                </div>
+                
+                <!-- Category -->
+                <div class="mb-3">
+                  <label for="category_name" class="form-label">Category</label>
+                  <select id="category_name" class="form-select">
+                    <option value="School">School</option>
+                    <option value="Work">Work</option>
+                    <option value="Business">Business</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                
+
+                <!-- Start Date & Time -->
+                <div class="mb-3">
+                  <label for="eventStart" class="form-label">Due Date</label>
+                  <input type="datetime-local" id="eventStart" name="eventStart" class="form-control" required>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                  <label for="event_description" class="form-label">Description</label>
+                  <textarea id="event_description" class="form-control" rows="3" placeholder="Enter event description"></textarea>
+                </div>
+
+                <!-- Priority (1-10) -->
+                <div class="mb-3">
+                  <label for="event_priority" class="form-label">Priority (1-10)</label>
+                  <input type="number" id="event_priority" class="form-control" min="1" max="10" required>
+                </div>
+
+                <!-- Reward (1-10) -->
+                <div class="mb-3">
+                  <label for="event_reward" class="form-label">Reward (1-10)</label>
+                  <input type="number" id="event_reward" class="form-control" min="1" max="10" required>
+                </div>
+                
+              </form>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+            </div>
+          
+          </div>
+        </div>
+      </div>
+
+
+
+
     <div id="calendar"></div>
 
     <!-- Event Form -->
