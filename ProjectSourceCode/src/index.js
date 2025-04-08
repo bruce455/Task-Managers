@@ -144,7 +144,9 @@ db.connect()
     res.render('pages/calendar.hbs');
   });
 
-  
+  app.get('/home', (req, res) => {
+    res.render('pages/home.hbs');
+  }); 
 
   
 
