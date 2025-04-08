@@ -13,3 +13,13 @@ By Next Week:
  Expect to have fully functioning Calendar with task modal
  Notification for tasks
  Priority Algorithm
+
+
+ Meeting 4/8/2025
+ Jack - missing next meeting, will push code beforehand 
+ New task modal created - put into a partial to be referenced by home and calender
+ Beef up calendar - make interaction more smooth 
+ create seperate current task modal to edit task information from home or calendar page
+ work further on home functionality 
+ make sure styling works fluidly on various pages
+ continue to impliment priority algo
