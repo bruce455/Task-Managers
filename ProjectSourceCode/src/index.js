@@ -57,12 +57,19 @@ db.connect()
     console.log('ERROR', error.message || error);
   });
 
-  
-  app.get('/', (req, res) => {
-    res.send("Hello world");
-  });
-  
 
+
+
+  // catch all route
+  app.get('/', (req, res) => {
+  if (req.session.user) {
+    return res.redirect('/home'); // Redirect logged-in users to discover
+  }
+  res.redirect('/login'); // Otherwise, go to login page
+  });
+
+
+  
 
   // API ROUTES (SAM)
 
