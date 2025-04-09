@@ -56,11 +56,21 @@ db.connect()
   .catch(error => {
     console.log('ERROR', error.message || error);
   });
-
-
-
-
+// -------------------------------------  MIDDLEWARE   ----------------------------------------------
+  // Insert this middleware before the routes that require authentication,
+  // to make sure the user is authenticated. If they are not redirect them to /login.
+  // Don't do this for /login and /register.
+  const auth = (req, res, next) => {
+    if (!req.session.user && req.path !== "/login" && req.path !== "/register") {
+      return res.redirect("/login");
+    }
+    next();
+  };
+  
+  app.use(auth);
+  // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
+  
   app.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect('/home'); // Redirect logged-in users to discover
@@ -138,21 +148,28 @@ db.connect()
       }
     });
 
-    // Authentication Middleware.
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page.
-      return res.redirect('/login');
-    }
-    next();
-  };
+    
 
   app.get('/calendar', (req, res) => {
     res.render('pages/calendar.hbs');
   });
 
-  app.get('/home', (req, res) => {
-    res.render('pages/home.hbs');
+  app.get("/home", auth, (req, res) => {
+    console.log(req.session.user);
+    db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [
+      req.session.user.user_id,
+    ])
+      .then((tasks) => {
+        console.log(tasks);
+        res.render("pages/home", { tasks });
+      })
+      .catch((err) => {
+        res.render("pages/courses", {
+          tasks: [],
+          error: true,
+          message: err.message, // TODO Error handle template.
+        });
+      });
   }); 
 
   

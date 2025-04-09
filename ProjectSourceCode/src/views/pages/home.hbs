@@ -14,37 +14,31 @@
   <div class="column">
     <h2>Upcoming</h2>
     <ul>
-      {{!-- Add upcoming tasks here --}}
+      {{! Add upcoming tasks here }}
       <li>No tasks yet</li>
     </ul>
   </div>
   <div class="column">
     <h2>Dailys</h2>
     <ul>
-      {{!-- Add daily tasks here --}}
-      <li>No tasks yet</li>
+      {{! Add daily tasks here }}
+      {{#each tasks}}
+        <tr>
+          <td>{{this.title}}</td>
+          <td>{{this.description}}</td>
+          <td>{{this.rewards}}</td>
+          <td>{{this.priority}}</td>
+          <td>{{this.due_date}}</td>
+        </tr>
+      {{/each}}
     </ul>
   </div>
 </main>
 
+
 <style>
-  .centered-header {
-    text-align: center;
-    margin-top: 20px;
-  }
-  .task-columns {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px;
-  }
-  .column {
-    width: 45%;
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-  }
-  .column h2 {
-    text-align: center;
-  }
+  .centered-header { text-align: center; margin-top: 20px; } .task-columns {
+  display: flex; justify-content: space-around; margin: 20px; } .column { width:
+  45%; border: 1px solid #ccc; padding: 15px; border-radius: 5px;
+  background-color: #f9f9f9; } .column h2 { text-align: center; }
 </style>
