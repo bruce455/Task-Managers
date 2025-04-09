@@ -1,0 +1,50 @@
+<!-- home-header.html -->
+<header class="homepage-header">
+  <nav class="navbar">
+    <div class="logo">
+      <a href="/">MySite</a>
+    </div>
+  </nav>
+  <section class="header-content">
+    <h1 class="centered-header">Task Managers</h1>
+  </section>
+</header>
+
+<main class="task-columns">
+  <div class="column">
+    <h2>Upcoming</h2>
+    <ul>
+      {{!-- Add upcoming tasks here --}}
+      <li>No tasks yet</li>
+    </ul>
+  </div>
+  <div class="column">
+    <h2>Dailys</h2>
+    <ul>
+      {{!-- Add daily tasks here --}}
+      <li>No tasks yet</li>
+    </ul>
+  </div>
+</main>
+
+<style>
+  .centered-header {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .task-columns {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+  }
+  .column {
+    width: 45%;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  .column h2 {
+    text-align: center;
+  }
+</style>
