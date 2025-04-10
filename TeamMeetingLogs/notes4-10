@@ -1,0 +1,7 @@
+Shona worked on home page frontend + backend, tasks and date/time + bug fix with calendar requiring session.
+Elijah worked on frontend (stylesheet), navbar, and stylesheets. Sam worked on Registration positive / negative, Priority Queue,
+Git Pull from main broke a lot of code. Calendar / add event was functioning, not sure if it is still functioning.
+
+Elijah: Global Leaderboard, Attendance Tracker
+Shona: Upcoming Dailys, incorporate priority w/ query, assignment history(?)
+Sam: Notification Popups, Logout, Task Completion Functionality
