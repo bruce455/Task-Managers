@@ -131,20 +131,29 @@ db.connect()
       }
     });
 
-    // Authentication Middleware.
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page.
-      return res.redirect('/login');
-    }
-    next();
-  };
+    
 
   app.get('/calendar', (req, res) => {
     res.render('pages/calendar.hbs');
   });
 
-  
+  app.get("/home", auth, (req, res) => {
+    console.log(req.session.user);
+    db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [
+      req.session.user.user_id,
+    ])
+      .then((tasks) => {
+        console.log(tasks);
+        res.render("pages/home", { tasks });
+      })
+      .catch((err) => {
+        res.render("pages/courses", {
+          tasks: [],
+          error: true,
+          message: err.message, // TODO Error handle template.
+        });
+      });
+  }); 
 
   
 
