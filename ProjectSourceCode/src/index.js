@@ -36,6 +36,9 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, 'resources')));
+
+
 // -------------------------------------  DB CONFIG AND CONNECT   ---------------------------------------
 const dbConfig = {
   host: 'db',
@@ -70,7 +73,7 @@ db.connect()
   app.use(auth);
   // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
-  
+
   app.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect('/home'); // Redirect logged-in users to home
@@ -158,23 +161,40 @@ app.get('/home', (req, res) => {
 
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
-    db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [
+  
+    // Get from envoronment variable TZ, but handle if TZ is not set
+    // If TZ is not set, use UTC as default
+    const time_zone = process.env.TZ || 'US/Mountain';
+
+    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC' AT TIME ZONE '${time_zone}') = DATE(NOW() AT TIME ZONE '${time_zone}');`;
+    const dailyTasksQuery = db.any(dailySqlQuery, [
       req.session.user.user_id,
-    ])
-      .then((tasks) => {
-        console.log(tasks);
-        res.render("pages/home", { tasks });
+    ]);
+    const upcomingTasksQuery = db.any(
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE;",
+      [req.session.user.user_id]
+    );
+  
+    // Execute both queries concurrently
+    Promise.all([dailyTasksQuery, upcomingTasksQuery])
+      .then(([daily_tasks, upcoming_tasks]) => {
+        console.log("Daily Tasks:", daily_tasks);
+        console.log("Upcoming Tasks:", upcoming_tasks);
+  
+        // Render the home page with both results
+        res.render("pages/home", { daily_tasks, upcoming_tasks });
       })
       .catch((err) => {
-        res.render("pages/courses", {
-          tasks: [],
-          error: true,
-          message: err.message, // TODO Error handle template.
-        });
+        console.error("Error fetching tasks:", err.message);
+        // res.render("pages/courses", {
+        //   tasks: [],
+        //   error: true,
+        //   message: err.message, // TODO Error handle template.
+        // });
       });
-  }); 
+  });
 
-  
+  // Query 1: db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [req.session.user.user_id])
 
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
