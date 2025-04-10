@@ -1,141 +1,357 @@
-/* Overall Body Styles */
+/* Base Styles */
 body {
-    background-color: #121212; /* Dark background */
-    color: #545454; /* Softer white text color */
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100vh; /* Full-height viewport */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #121212;
+  color: #545454;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
-/* Full height container for centering */
+/* Login/Register specific styles */
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
 }
 
-/* (Optional) Full-height class for rows if needed */
-.full-height {
-    height: 100vh;
-}
-
-/* Form Styles */
 .login-form {
-    background-color: #121212; /* Ensure it stays dark */
-    padding: 30px;
-    border-radius: 100px;
-    width: 100%;       /* Full width of the parent column */
-    max-width: 600px;  /* Limit to a boxy size */
+  background-color: #121212;
+  padding: 30px;
+  border-radius: 100px;
+  width: 100%;
+  max-width: 600px;
 }
 
-/* Login Header: Make it match the navbar icons color */
 .login-form h2 {
-    color: #7b7b7b; /* Same as your navbar links */
-    margin-top: 0 !important;
-    margin-bottom: 1rem !important;
+  color: #7b7b7b;
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
 }
 
-/* Input Fields */
 .form-control,
 .form-control:focus {
-    background-color: #1e1e1e !important;  /* Force a dark background */
-    color: #e0e0e0 !important;             /* Force lighter text color */
-    border: none;                         /* Remove any default border */
-    box-shadow: none !important;           /* Remove any focus shadow if needed */
-    border-radius: 0;
-
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  border: none;
+  box-shadow: none !important;
+  border-radius: 0;
 }
 
 .form-control::placeholder {
-    color: #bbbbbb !important;             /* Lighter placeholder text */
+  color: #bbbbbb !important;
 }
 
-
-
-/* Navbar */
+/* Navigation */
 .navbar {
-    width: 100%;
-    background-color: #1e1e1e;
-    padding: 15px 20px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  width: 100%;
+  background-color: #1e1e1e;
+  padding: 15px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
 }
 
 .navbar .nav-left,
 .navbar .nav-right {
-    display: flex;
-    gap: 15px; /* Spacing between buttons */
+  display: flex;
+  gap: 15px;
 }
 
 .navbar a {
-    color: #7b7b7b;
-    text-decoration: none;
-    font-size: 24px;
-    font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 5px;
+  color: #7b7b7b;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 5px;
 }
 
 .navbar a:hover {
-    background-color: #545454;
+  background-color: #545454;
 }
 
-/* Button Styles */
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+/* Calendar Styles */
+.calendar-page {
+  padding-top: 60px;
+  padding-bottom: 100px; /* Added padding for footer */
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+.calendar-header {
+  background: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
 }
 
-/* Link Styles */
-.text-center a {
-    color: #66ccff;
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.3s ease;
+.calendar-info {
+  margin-bottom: 15px;
 }
 
-.text-center a:hover {
-    color: #3399ff;
-    text-decoration: underline;
+.current-datetime,
+.user-login {
+  margin: 5px 0;
+  color: #7b7b7b;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.calendar-header h1 {
+  text-align: center;
+  color: #e0e0e0;
+  margin: 0;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  color: #7b7b7b;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.3s ease;
+}
+
+.calendar-header button:hover {
+  color: #e0e0e0;
+}
+
+.calendar-header p {
+  text-align: center;
+  color: #7b7b7b;
+  margin: 5px 0 0;
+}
+
+.calendar {
+  background: #1e1e1e;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.day-names-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day-name {
+  color: #7b7b7b;
+  text-align: center;
+  border-bottom: 1px solid rgba(166, 168, 179, 0.12);
+  line-height: 50px;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+#calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day {
+  border-bottom: 1px solid rgba(166, 168, 179, 0.12);
+  border-right: 1px solid rgba(166, 168, 179, 0.12);
+  min-height: 120px;
+  padding: 10px;
+  color: #e0e0e0;
+  text-align: right;
+}
+
+.day:nth-child(7n) {
+  border-right: none;
+}
+
+.day--disabled {
+  color: #7b7b7b;
+  background-color: rgba(45, 45, 45, 0.5);
+}
+
+.task {
+  background: #4786ff;
+  color: #fff;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* Event Form */
+.event-form {
+  max-width: 800px;
+  margin: 20px auto;
+  margin-bottom: 100px; /* Added margin for footer */
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.event-form h2 {
+  color: #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.event-form label {
+  display: block;
+  margin-bottom: 5px;
+  color: #7b7b7b;
+}
+
+.event-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  background-color: #2d2d2d;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e0e0e0;
+}
+
+.event-form button {
+  background: #4786ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.event-form button:hover {
+  background: #3670db;
+}
+
+/* Homepage Styles */
+.homepage-header {
+  margin-bottom: 40px;
+}
+
+.centered-header {
+  text-align: center;
+  margin-top: 80px;
+  color: #e0e0e0;
+}
+
+.task-columns {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px;
+  padding-top: 20px;
+}
+
+.col-8 {
+  width: 45%;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.col-8 h2 {
+  color: #e0e0e0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.col-8 ul {
+  list-style: none;
+  padding: 0;
+}
+
+.col-8 tr {
+  display: block;
+  background: #2d2d2d;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.col-8 td {
+  display: block;
+  color: #e0e0e0;
+  margin: 5px 0;
+}
+
+/* Footer Styles */
+.fixed-bottom {
+  background-color: #1e1e1e;
+  padding: 10px 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.footer-content p {
+  color: #7b7b7b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.current-datetime,
+.user-login {
+  font-family: monospace;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .login-form {
-        padding: 20px;
-    }
-    
-    .form-control {
-        font-size: 0.9rem;
-    }
-    
-    .btn-primary {
-        font-size: 0.9rem;
-    }
-}
+  .calendar-page {
+      width: 100%;
+      padding: 60px 10px 20px;
+  }
 
+  .day {
+      padding: 5px;
+      font-size: 12px;
+  }
+
+  .task-columns {
+      flex-direction: column;
+      gap: 20px;
+  }
+  
+  .col-8 {
+      width: 90%;
+      margin: 0 auto;
+  }
+
+  .footer-content p {
+      font-size: 12px;
+  }
+
+  .current-datetime,
+  .user-login {
+      font-size: 12px;
+  }
+}
