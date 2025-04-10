@@ -36,6 +36,9 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, 'resources')));
+
+
 // -------------------------------------  DB CONFIG AND CONNECT   ---------------------------------------
 const dbConfig = {
   host: 'db',
