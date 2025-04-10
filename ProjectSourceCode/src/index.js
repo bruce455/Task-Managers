@@ -193,7 +193,47 @@ db.connect()
   });
 
   // Query 1: db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [req.session.user.user_id])
+  app.post('/add-event', async (req, res) => {
+    const userId = req.session.user?.user_id;
 
+    const { event_name, category_name, eventDate, event_description, event_priority, event_reward } = req.body;
+    //console.log(req.body);
+    //console.log(userId);
+
+    try {
+      const result = await db.any(
+        `INSERT INTO tasks (title, description, rewards, priority, due_date, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [event_name, event_description, event_reward, event_priority, eventDate, userId]
+      );
+  
+      //refresh the page if adding the event was succesful
+      res.redirect('/calendar');
+    } catch (err) {
+      console.log('Error inserting the event.');
+      res.status(500).json({ error: err}); //500 error for server-side error
+    }
+  });
+
+
+
+  app.get('/get-events', async (req, res) => {
+    const userId = req.session.user?.user_id;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+  
+    try {
+      const events = await db.any(
+        'SELECT title, due_date as start FROM tasks WHERE user_id = $1',
+        [userId]
+      );
+      res.json(events);
+    } catch (err) {
+      console.log("Error getting events from db:", err);
+      res.status(500).json({ error: err});
+    }
+  });
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 
