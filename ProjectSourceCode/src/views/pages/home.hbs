@@ -15,22 +15,28 @@
     <h2>Upcoming</h2>
     <ul>
       {{! Add upcoming tasks here }}
-      <li>No tasks yet</li>
+      {{#each tasks}}
+          <tr>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.rewards}}</td>
+            <td>{{this.priority}}</td>
+            <td>{{this.due_date}}</td>
+          </tr>
+          <tr>
+    <!-- Spacer row spanning 5 columns for extra space or a visual divider -->
+    <td colspan="5"><br></td>
+    <td colspan="5"><br></td>
+    </tr>
+      {{/each}}
+      {{! <li>No tasks yet</li> }} 
     </ul>
   </div>
   <div class="column">
     <h2>Dailys</h2>
     <ul>
       {{! Add daily tasks here }}
-      {{#each tasks}}
-        <tr>
-          <td>{{this.title}}</td>
-          <td>{{this.description}}</td>
-          <td>{{this.rewards}}</td>
-          <td>{{this.priority}}</td>
-          <td>{{this.due_date}}</td>
-        </tr>
-      {{/each}}
+      
     </ul>
   </div>
 </main>
