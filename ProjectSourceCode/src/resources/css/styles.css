@@ -1,0 +1,141 @@
+/* Overall Body Styles */
+body {
+    background-color: #121212; /* Dark background */
+    color: #545454; /* Softer white text color */
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Full-height viewport */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Full height container for centering */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+/* (Optional) Full-height class for rows if needed */
+.full-height {
+    height: 100vh;
+}
+
+/* Form Styles */
+.login-form {
+    background-color: #121212; /* Ensure it stays dark */
+    padding: 30px;
+    border-radius: 100px;
+    width: 100%;       /* Full width of the parent column */
+    max-width: 600px;  /* Limit to a boxy size */
+}
+
+/* Login Header: Make it match the navbar icons color */
+.login-form h2 {
+    color: #7b7b7b; /* Same as your navbar links */
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Input Fields */
+.form-control,
+.form-control:focus {
+    background-color: #1e1e1e !important;  /* Force a dark background */
+    color: #e0e0e0 !important;             /* Force lighter text color */
+    border: none;                         /* Remove any default border */
+    box-shadow: none !important;           /* Remove any focus shadow if needed */
+    border-radius: 0;
+
+}
+
+.form-control::placeholder {
+    color: #bbbbbb !important;             /* Lighter placeholder text */
+}
+
+
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    background-color: #1e1e1e;
+    padding: 15px 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .nav-left,
+.navbar .nav-right {
+    display: flex;
+    gap: 15px; /* Spacing between buttons */
+}
+
+.navbar a {
+    color: #7b7b7b;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.navbar a:hover {
+    background-color: #545454;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+}
+
+/* Link Styles */
+.text-center a {
+    color: #66ccff;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.text-center a:hover {
+    color: #3399ff;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-form {
+        padding: 20px;
+    }
+    
+    .form-control {
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        font-size: 0.9rem;
+    }
+}
+

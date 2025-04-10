@@ -1,8 +1,8 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <h2 class="text-center mb-4">Login</h2>
-            <form action="/login" method="POST">
+<div class="container">
+    <div class="row justify-content-center align-items-center full-height">
+        <div class="col-12 col-md-12 col-lg-12">
+            <h2 class="text-center mb-0">Login</h2>
+            <form action="/login" method="POST" class="login-form">
                 <div class="form-group mt-4">
                     <input type="text" id="username" name="username" 
                         class="form-control form-control-lg"
@@ -13,7 +13,6 @@
                         class="form-control form-control-lg"
                         placeholder="Password" required>
                 </div>
-
                 <div>
                     <button 
                         type="submit" 
@@ -21,9 +20,8 @@
                         Login
                     </button>
                 </div>
-
                 <p class="text-center mt-3">
-                    Don't have an account? <a href="/register">Register</a>
+                    Don’t have an account? <a href="/register">Register</a>
                 </p>
             </form>
         </div>

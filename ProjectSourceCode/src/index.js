@@ -36,6 +36,9 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, 'resources')));
+
+
 // -------------------------------------  DB CONFIG AND CONNECT   ---------------------------------------
 const dbConfig = {
   host: 'db',
@@ -56,13 +59,30 @@ db.connect()
   .catch(error => {
     console.log('ERROR', error.message || error);
   });
-
+// -------------------------------------  MIDDLEWARE   ----------------------------------------------
+  // Insert this middleware before the routes that require authentication,
+  // to make sure the user is authenticated. If they are not redirect them to /login.
+  // Don't do this for /login and /register.
+  const auth = (req, res, next) => {
+    if (!req.session.user && req.path !== "/login" && req.path !== "/register") {
+      return res.redirect("/login");
+    }
+    next();
+  };
   
+  app.use(auth);
+  // -------------------------------------  ROUTES   ----------------------------------------------
+  // catch all route
+
   app.get('/', (req, res) => {
-    res.send("Hello world");
+  if (req.session.user) {
+    return res.redirect('/home'); // Redirect logged-in users to discover
+  }
+  res.redirect('/login'); // Otherwise, go to login page
   });
-  
 
+
+  
 
   // API ROUTES (SAM)
 
@@ -131,22 +151,48 @@ db.connect()
       }
     });
 
-    // Authentication Middleware.
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page.
-      return res.redirect('/login');
-    }
-    next();
-  };
+    
 
   app.get('/calendar', (req, res) => {
     res.render('pages/calendar.hbs');
   });
 
+  app.get("/home", auth, (req, res) => {
+    console.log(req.session.user);
   
+    // Get from envoronment variable TZ, but handle if TZ is not set
+    // If TZ is not set, use UTC as default
+    const time_zone = process.env.TZ || 'US/Mountain';
 
+    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC' AT TIME ZONE '${time_zone}') = DATE(NOW() AT TIME ZONE '${time_zone}');`;
+    const dailyTasksQuery = db.any(dailySqlQuery, [
+      req.session.user.user_id,
+    ]);
+    const upcomingTasksQuery = db.any(
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE;",
+      [req.session.user.user_id]
+    );
   
+    // Execute both queries concurrently
+    Promise.all([dailyTasksQuery, upcomingTasksQuery])
+      .then(([daily_tasks, upcoming_tasks]) => {
+        console.log("Daily Tasks:", daily_tasks);
+        console.log("Upcoming Tasks:", upcoming_tasks);
+  
+        // Render the home page with both results
+        res.render("pages/home", { daily_tasks, upcoming_tasks });
+      })
+      .catch((err) => {
+        console.error("Error fetching tasks:", err.message);
+        // res.render("pages/courses", {
+        //   tasks: [],
+        //   error: true,
+        //   message: err.message, // TODO Error handle template.
+        // });
+      });
+  });
+
+  // Query 1: db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [req.session.user.user_id])
 
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
