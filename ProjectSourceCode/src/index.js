@@ -128,25 +128,35 @@ db.connect()
   });
 
   app.post('/register', async (req, res) => {
-      const {email, username, password } = req.body;
-    
-      try {
-        // Hash the password with a salt round of 10.
-        const hashedPassword = await bcrypt.hash(password, 10);
-    
-        // Insert the username and hashed password into the users table.
-        // Changed the query placeholders to $1 and $2 for pg-promise.
-        const query = 'INSERT INTO users (username, password_hashed, email) VALUES ($1, $2, $3)';
-        await db.none(query, [username, hashedPassword, email]);
-    
-        // On success, redirect to the /login route.
-        res.redirect('/login');
-      } catch (error) {
-        console.error('Error during user registration:', error);
-        // If the insert fails, redirect back to the /register page.
-        res.redirect('/register');
+    const { email, username, password } = req.body;
+  
+    try {
+      // Check if the username or email already exists.
+      const checkQuery = 'SELECT * FROM users WHERE username = $1 OR email = $2';
+      const existingUsers = await db.any(checkQuery, [username, email]);
+  
+      // If there is at least one matching record, return a 409 Conflict error.
+      if (existingUsers.length > 0) {
+        console.error('Registration error: Username or email already exists.');
+        return res.status(409).json({ error: 'Username or email already exists' });
       }
-    });
+  
+      // Hash the password with a salt round of 10.
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Insert the username, hashed password, and email into the users table.
+      const query = 'INSERT INTO users (username, password_hashed, email) VALUES ($1, $2, $3)';
+      await db.none(query, [username, hashedPassword, email]);
+  
+      // On success, redirect to the /login route.
+      res.redirect('/login');
+    } catch (error) {
+      console.error('Error during user registration:', error);
+      // If an error occurs during registration, redirect back to the /register page.
+      res.redirect('/register');
+    }
+  });
+  
 
     
 
