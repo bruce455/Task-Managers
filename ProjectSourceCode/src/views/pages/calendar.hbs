@@ -1,103 +1,51 @@
+<div class="calendar-page">
+  <div class="calendar-header">
+    <div class="calendar-info">
+      <p class="current-datetime">Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-04-10 21:21:09</p>
+      <p class="user-login">Current User's Login: {{userLogin}}</p>
+    </div>
+    <div class="calendar-nav">
+      <h1>
+        <button id="prevMonth">◄</button>
+        <span id="currentMonth"></span>
+        <button id="nextMonth">►</button>
+      </h1>
+      <p id="currentYear"></p>
+    </div>
+  </div>
+  <div class="calendar">
+    <div class="day-names-grid">
+      <span class="day-name">Mon</span>
+      <span class="day-name">Tue</span>
+      <span class="day-name">Wed</span>
+      <span class="day-name">Thu</span>
+      <span class="day-name">Fri</span>
+      <span class="day-name">Sat</span>
+      <span class="day-name">Sun</span>
+    </div>
+    <div id="calendar-days">
+      {{!-- Days will be populated by JavaScript --}}
+    </div>
+  </div>
 
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f0f0f0;
-        padding: 20px;
-      }
-      #calendar {
-        max-width: 900px;
-        margin: 20px auto;
-        background: #fff;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 10px;
-      }
-      form {
-        max-width: 900px;
-        margin: 20px auto;
-        background: #fff;
-        padding: 20px;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      form label {
-        display: block;
-        margin-bottom: 5px;
-      }
-      form input {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      form button {
-        padding: 10px 20px;
-        background: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      form button:hover {
-        background: #0056b3;
-      }
-    </style>
-    <div id="calendar"></div>
-
-    <!-- Event Form -->
-    <form id="eventForm">
+  <div class="event-section">
+    <button id="addEventBtn" class="add-event-btn">Add Event</button>
+    
+    <form id="eventForm" class="event-form">
       <h2>Add New Event</h2>
       <label for="eventTitle">Event Title:</label>
       <input type="text" id="eventTitle" name="eventTitle" required>
 
-      <label for="eventStart">Start Date &amp; Time:</label>
+      <label for="eventStart">Start Date & Time:</label>
       <input type="datetime-local" id="eventStart" name="eventStart" required>
 
-      <label for="eventEnd">End Date &amp; Time (optional):</label>
+      <label for="eventEnd">End Date & Time (optional):</label>
       <input type="datetime-local" id="eventEnd" name="eventEnd">
 
-      <button type="submit">Add Event</button>
+      <div class="form-buttons">
+        <button type="submit">Add Event</button>
+        <button type="button" id="cancelEventBtn">Cancel</button>
+      </div>
     </form>
-
-    <script>
-      let calendar;
-
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth',
-          headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-          },
-          events: []  // Starts with no events
-        });
-        calendar.render();
-
-        // Listen for form submission to add events
-        const form = document.getElementById('eventForm');
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const title = document.getElementById('eventTitle').value;
-          const start = document.getElementById('eventStart').value;
-          const end = document.getElementById('eventEnd').value;
-
-          // Simple validation: title and start date must be provided
-          if (title && start) {
-            // Add the event to the calendar
-            calendar.addEvent({
-              title: title,
-              start: start,
-              end: end ? end : null  // Use null if end is empty
-            });
-            // Reset the form for the next entry
-            form.reset();
-          } else {
-            alert("Please provide an event title and start date/time.");
-          }
-        });
-      });
-    </script>
+  </div>
+</div>
