@@ -77,7 +77,41 @@
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
           },
-          events: '/get-events'
+          events: '/get-events',
+          eventClick: async function(info) {
+            info.jsEvent.preventDefault();
+            
+            console.log('taskId:', info.event.extendedProps.task_id);
+
+
+            const taskId = info.event.extendedProps.task_id;
+            if (!taskId) return;
+
+            try {
+              const response = await fetch(`/tasks/${taskId}`);
+              const task = await response.json();
+
+              document.getElementById('edit-title').value = task.title || '';
+              document.getElementById('edit-description').value = task.description || '';
+              // document.getElementById('edit-due-date').value = task.due_date?.split('T')[0] || '';
+              if (task.due_date) {
+                const date = new Date(task.due_date);
+                const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                  .toISOString()
+                  .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+                document.getElementById('edit-due-date').value = local;
+              }
+
+              document.getElementById('edit-priority').value = task.priority || '';
+              document.getElementById('edit-reward').value = task.rewards || '';
+              document.getElementById('edit-task-id').value = task.task_id || '';
+
+              const modal = new bootstrap.Modal(document.getElementById('edit-task-modal'));
+              modal.show();
+            } catch (err) {
+              console.error('Error loading task for modal:', err);
+            }
+          }
         });
         calendar.render();
       });

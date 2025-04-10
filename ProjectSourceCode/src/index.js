@@ -194,7 +194,52 @@ app.get('/home', (req, res) => {
       });
   });
 
-  // Query 1: db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [req.session.user.user_id])
+  // get current task info for editting
+  app.get('/tasks/:id', async (req, res) => {
+    const taskId = parseInt(req.params.id, 10);
+    console.log('Fetching task with ID:', taskId);
+  
+    try {
+      const result = await db.any('SELECT * FROM tasks WHERE task_id = $1', [taskId]);
+      console.log('Query result:', result);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+  
+      res.json(result[0]);
+    } catch (err) {
+      console.error('Error fetching task:', err.message, err.stack);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  
+  
+  // upodate editted task info to db
+  app.put('/tasks/:id', async (req, res) => {
+    const taskId = req.params.id;
+    console.log('Task ID received:', taskId);
+
+    const { title, description, due_date, priority, reward } = req.body;
+
+  
+    try {
+      
+      await db.query(`
+        UPDATE tasks
+        SET title = $1, description = $2, due_date = $3, priority = $4, rewards = $5
+        WHERE task_id = $6
+      `, [title, description, due_date, priority, reward, taskId]);
+      
+  
+      res.status(200).json({ message: 'Task updated successfully' });
+    } catch (err) {
+      console.error('Error updating task:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
   app.post('/add-event', async (req, res) => {
     const userId = req.session.user?.user_id;
 
@@ -227,12 +272,20 @@ app.get('/home', (req, res) => {
   
     try {
       const events = await db.any(
-        'SELECT title, due_date as start FROM tasks WHERE user_id = $1',
+        'SELECT task_id, title, due_date as start FROM tasks WHERE user_id = $1',
         [userId]
       );
-      res.json(events);
+      
+      res.json(events.map(event => ({
+        title: event.title,
+        start: event.start,
+        extendedProps: {
+          task_id: event.task_id
+        }
+      })));
+
     } catch (err) {
-      console.log("Error getting events from db:", err);
+      console.log("Error getting events from db:", err.message, err.stack);
       res.status(500).json({ error: err});
     }
   });
