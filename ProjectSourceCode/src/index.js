@@ -179,9 +179,10 @@ db.connect()
     console.log("Current session user:", req.session.user);
     try {
       // Get all tasks belonging to the logged-in user.
-      const tasks = await db.any("SELECT * FROM tasks WHERE user_id = $1;", [
+      const tasks = await db.any("SELECT * FROM tasks WHERE user_id = $1 ORDER BY priority ASC;", [
         req.session.user.user_id,
       ]);
+      
   
       // Separate tasks: dailys (priority 0) vs. other tasks.
       const dailys = tasks.filter(task => task.priority === 0);
