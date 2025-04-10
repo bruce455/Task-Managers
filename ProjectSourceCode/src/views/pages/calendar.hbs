@@ -1,5 +1,4 @@
-
-    <style>
+<style>
       body {
         font-family: Arial, sans-serif;
         background: #f0f0f0;
@@ -44,40 +43,85 @@
         background: #0056b3;
       }
     </style>
+  </head>
+  <body>
+      <!-- creating the button-->
+      <div class="custom-container">
+                <button
+                class="btn btn-primary mt-3"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+                >
+                Create Event
+                </button>
+                
+            </div>
+      <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <form id="data-form" method="post" action="/add-event"> <!--Creating the post for index.js-->
+
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Add Event</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Event Name -->
+          <div class="mb-3">
+            <label for="event_name" class="form-label">Task Title</label>
+            <input type="text" id="event_name" name="event_name" class="form-control" placeholder="Enter event title" required>
+          </div>
+
+
+          <!-- Start Date & Time -->
+          <div class="mb-3">
+            <label for="eventDate" class="form-label">Due Date</label>
+            <input type="datetime-local" id="eventDate" name="eventDate" class="form-control" required>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="event_description" class="form-label">Description</label>
+            <textarea id="event_description" name="event_description" class="form-control" rows="3" placeholder="Enter event description"></textarea>
+          </div>
+
+          <!-- Priority 1-10 -->
+          <div class="mb-3">
+            <label for="event_priority" class="form-label">Priority (1-10)</label>
+            <input type="number" id="event_priority" name="event_priority" class="form-control" min="1" max="10" required>
+          </div>
+
+          <!-- Reward 1-10 -->
+          <div class="mb-3">
+            <label for="event_reward" class="form-label">Reward (1-10)</label>
+            <input type="number" id="event_reward" name="event_reward" class="form-control" min="1" max="10" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
     <div id="calendar"></div>
 
-    <!-- Event Form -->
-    <!--
-    <form id="eventForm">
-      <h2>Add New Event</h2>
-      <label for="eventTitle">Event Title:</label>
-      <input type="text" id="eventTitle" name="eventTitle" required>
-
-      <label for="eventStart">Start Date &amp; Time:</label>
-      <input type="datetime-local" id="eventStart" name="eventStart" required>
-
-      <label for="eventEnd">End Date &amp; Time (optional):</label>
-      <input type="datetime-local" id="eventEnd" name="eventEnd">
-
-      <button type="submit">Add Event</button>
-    </form>
-    -->
-    <button 
-      type="button" 
-      class="btn btn-primary" 
-      data-bs-toggle="modal" 
-      data-bs-target="#addTaskModal">
-      Add Task
-    </button>
-
-    {{> addTaskModal}}
-
-
+    
+  
     <script>
       let calendar;
 
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+        document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
           headerToolbar: {
@@ -85,31 +129,40 @@
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
           },
-          events: []  // Starts with no events
+          events: '/get-events'
         });
         calendar.render();
-
-        // Listen for form submission to add events
-        const form = document.getElementById('eventForm');
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const title = document.getElementById('eventTitle').value;
-          const start = document.getElementById('eventStart').value;
-          const end = document.getElementById('eventEnd').value;
-
-          // Simple validation: title and start date must be provided
-          if (title && start) {
-            // Add the event to the calendar
-            calendar.addEvent({
-              title: title,
-              start: start,
-              end: end ? end : null  // Use null if end is empty
-            });
-            // Reset the form for the next entry
-            form.reset();
-          } else {
-            alert("Please provide an event title and start date/time.");
-          }
-        });
       });
+
+      function saveEvent() {
+        const title = document.getElementById('event_name').value;
+        const date = document.getElementById('eventDate').value;
+        const description = document.getElementById('event_description').value;
+        const priority = document.getElementById('event_priority').value;
+        const reward = document.getElementById('event_reward').value;
+
+        if (title && date) {
+          // Add event to calendar
+          calendar.addEvent({
+            title: `${title} [${category}]`,
+            start: date,
+            extendedProps: {
+              description: description,
+              priority: priority,
+              reward: reward
+            }
+          });
+
+          //Reset the form
+          document.getElementById('data-form').reset();
+
+          //close the modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+          modal.hide();
+        } else {
+          alert("Please provide an event title and due date.");
+        }
+      }
     </script>
+  </body>
+</html>
