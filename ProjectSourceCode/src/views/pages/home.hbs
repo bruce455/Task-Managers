@@ -12,17 +12,23 @@
 
 <main class="task-columns">
   <div class="column">
-    <h2>Upcoming</h2>
+    <h2>Dailys</h2>
     <ul>
-      {{! Add upcoming tasks here }}
-      <li>No tasks yet</li>
+      {{#each daily_tasks}}
+        <tr>
+          <td>{{this.title}}</td>
+          <td>{{this.description}}</td>
+          <td>{{this.rewards}}</td>
+          <td>{{this.priority}}</td>
+          <td>{{this.due_date}}</td>
+        </tr>
+      {{/each}}
     </ul>
   </div>
   <div class="column">
-    <h2>Dailys</h2>
+    <h2>Upcoming</h2>
     <ul>
-      {{! Add daily tasks here }}
-      {{#each tasks}}
+      {{#each upcoming_tasks}}
         <tr>
           <td>{{this.title}}</td>
           <td>{{this.description}}</td>
