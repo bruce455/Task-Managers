@@ -47,6 +47,7 @@
     <div id="calendar"></div>
 
     <!-- Event Form -->
+    <!--
     <form id="eventForm">
       <h2>Add New Event</h2>
       <label for="eventTitle">Event Title:</label>
@@ -60,6 +61,17 @@
 
       <button type="submit">Add Event</button>
     </form>
+    -->
+    <button 
+      type="button" 
+      class="btn btn-primary" 
+      data-bs-toggle="modal" 
+      data-bs-target="#addTaskModal">
+      Add Task
+    </button>
+
+    {{> addTaskModal}}
+
 
     <script>
       let calendar;

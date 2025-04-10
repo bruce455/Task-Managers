@@ -14,5 +14,114 @@
   <!-- FullCalendar JS -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
 
+  <style>
+        /* Full dark mode styles */
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            background-color: #1e1e1e;
+            padding: 15px 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .nav-left,
+        .navbar .nav-right {
+            display: flex;
+            gap: 15px; /* Spacing between buttons */
+        }
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .navbar a:hover {
+            background-color: #333;
+        }
+        /* Login Form */
+        .login-container {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+            margin-top: 80px; /* Pushes login form down */
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .form-control {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .form-control::placeholder {
+            color: #bbbbbb;
+        }
+        
+        .form-control:focus {
+            border-color: #007bff; /* Change border color */
+            outline: none; /* Remove the default outline */
+            background-color: #3d3d3d; /* Change background color if desired */
+            color: #ffffff;
+        }
+        .modal-content {
+          background-color: #1e1e1e;
+          color: #ffffff;
+        }
+        .btn-close-white {
+          filter: invert(1);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .link a {
+            color: #66ccff;
+            text-decoration: none;
+        }
+        .link a:hover {
+            color: #3399ff;
+        }
+    </style>
+
 </head>
 <body class="h-100 d-flex flex-column">

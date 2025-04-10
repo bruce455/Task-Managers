@@ -55,21 +55,23 @@ db.connect()
   })
   .catch(error => {
     console.log('ERROR', error.message || error);
-  });
+});
 
 
 
 
-  // catch all route
-  app.get('/', (req, res) => {
+// catch all route
+app.get('/', (req, res) => {
   if (req.session.user) {
-    return res.redirect('/home'); // Redirect logged-in users to discover
+    return res.redirect('/home'); // Redirect logged-in users to home
   }
   res.redirect('/login'); // Otherwise, go to login page
-  });
+});
 
+app.get('/home', (req, res) => {
+  res.render('pages/home.hbs');
+});
 
-  
 
   // API ROUTES (SAM)
 
