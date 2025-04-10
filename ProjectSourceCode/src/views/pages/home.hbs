@@ -12,7 +12,7 @@
     <h2>Upcoming</h2>
     <ul>
       {{! Add upcoming tasks here }}
-      {{#each tasks}}
+      {{#each upcoming}}
           <tr>
             <p>Title: 
             <td>{{this.title}}</td></p>
@@ -37,7 +37,20 @@
   <div class="column">
     <h2>Dailys</h2>
     <ul>
-      {{! Add daily tasks here }}
+      {{#if dailys.length}}
+    <ul>
+      {{#each dailys}}
+        <li class="task">
+          <strong>Title:</strong> {{title}}<br>
+          <strong>Description:</strong> {{description}}<br>
+          <strong>Rewards:</strong> {{rewards}}<br>
+          <strong>Due Date:</strong> {{#if due_date}}{{due_date}}{{else}}No due date{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p>No Dailys tasks available.</p>
+  {{/if}}
       
     </ul>
   </div>

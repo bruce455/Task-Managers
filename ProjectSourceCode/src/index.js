@@ -175,23 +175,29 @@ db.connect()
     res.render('pages/calendar.hbs');
   });
 
-  app.get("/home", auth, (req, res) => {
-    console.log(req.session.user);
-    db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [
-      req.session.user.user_id,
-    ])
-      .then((tasks) => {
-        console.log(tasks);
-        res.render("pages/home", { tasks });
-      })
-      .catch((err) => {
-        res.render("pages/courses", {
-          tasks: [],
-          error: true,
-          message: err.message, // TODO Error handle template.
-        });
-      });
-  }); 
+  app.get("/home", auth, async (req, res) => {
+    console.log("Current session user:", req.session.user);
+    try {
+      // Get all tasks belonging to the logged-in user.
+      const tasks = await db.any("SELECT * FROM tasks WHERE user_id = $1;", [
+        req.session.user.user_id,
+      ]);
+  
+      // Separate tasks: dailys (priority 0) vs. other tasks.
+      const dailys = tasks.filter(task => task.priority === 0);
+      const upcoming = tasks.filter(task => task.priority !== 0);
+  
+      console.log("Dailys:", dailys);
+      console.log("Upcoming: ", upcoming);
+  
+      // Render the home view with the two separate groups.
+      res.render("pages/home", { dailys, upcoming });
+    } catch (error) {
+      console.error("Error retrieving tasks:", error);
+      res.render("pages/home", { dailys: [], upcoming: [], error: error.message });
+    }
+  });
+  
 
   
 
