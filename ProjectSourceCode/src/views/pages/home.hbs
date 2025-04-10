@@ -1,9 +1,6 @@
 <!-- home-header.html -->
 <header class="homepage-header">
   <nav class="navbar">
-    <div class="logo">
-      <a href="/">MySite</a>
-    </div>
   </nav>
   <section class="header-content">
     <h1 class="centered-header">Task Managers</h1>
@@ -17,11 +14,16 @@
       {{! Add upcoming tasks here }}
       {{#each tasks}}
           <tr>
-            <td>{{this.title}}</td>
-            <td>{{this.description}}</td>
-            <td>{{this.rewards}}</td>
-            <td>{{this.priority}}</td>
-            <td>{{this.due_date}}</td>
+            <p>Title: 
+            <td>{{this.title}}</td></p>
+            <p>Description: 
+            <td>{{this.description}}</td></p>
+            <p>Reward: 
+            <td>{{this.rewards}}</td></p>
+            <p>Priority: 
+            <td>{{this.priority}}</td></p>
+            <p>Due Date: 
+            <td>{{this.due_date}}</td></p>
           </tr>
           <tr>
     <!-- Spacer row spanning 5 columns for extra space or a visual divider -->

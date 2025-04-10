@@ -157,6 +157,17 @@ db.connect()
     }
   });
   
+  app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error while logging out:', err);
+        // Optionally, you might redirect to the login page with a message
+        return res.redirect('/login');
+      }
+      // Render the login page after successful logout.
+      res.render('pages/logout');
+    });
+  });
 
     
 
