@@ -1,0 +1,36 @@
+<div class="modal fade" id="edit-task-modal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form onsubmit="saveTaskChanges(event)">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="edit-task-id">
+
+          <label for="edit-title">Title</label>
+          <input type="text" id="edit-title" class="form-control mb-2">
+
+          <label for="edit-description">Description</label>
+          <textarea id="edit-description" class="form-control mb-2"></textarea>
+
+          <label for="edit-due-date">Due Date</label>
+          <input type="datetime-local" id="edit-due-date" class="form-control mb-2">
+
+          <label for="edit-priority">Priority</label>
+          <input type="number" id="edit-priority" class="form-control mb-2">
+
+          <label for="edit-reward">Reward</label>
+          <input type="number" id="edit-reward" class="form-control mb-2">
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
