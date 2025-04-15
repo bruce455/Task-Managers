@@ -23,3 +23,14 @@ By Next Week:
  work further on home functionality 
  make sure styling works fluidly on various pages
  continue to impliment priority algo
+
+
+Meeting 4/15/2025
+Re-up calendar look to fit theme
+Finish priority algorithm 
+Make current task modal work for home page
+Fix time zone adjustment bug in current task modal
+Make edit/current task modal work on home
+Home page should display leaderboard 
+Daily tasks denoted by 0 priority are daily
+Tasks completion functionality - tracking variable?
