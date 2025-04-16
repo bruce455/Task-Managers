@@ -274,7 +274,7 @@ app.use((req, res, next) => {
   app.post('/add-event', async (req, res) => {
     const userId = req.session.user?.user_id;
 
-    const { event_name, category_name, eventDate, event_description, event_priority, event_reward } = req.body;
+    const { event_name, eventDate, event_description, event_priority, event_reward } = req.body;
     //console.log(req.body);
     //console.log(userId);
 
@@ -321,7 +321,23 @@ app.use((req, res, next) => {
     }
   });
   
+  app.post('/delete-task', (req, res) => {
+    const taskId = req.body.task_id; 
 
+    if (!taskId) {
+      return res.status(400).send('No task ID found.');
+    }
+    try{
+    db.any('DELETE FROM Tasks WHERE task_id = $1', [taskId])
+      .then(() => {
+        
+        res.redirect('/calendar'); 
+      })
+      } catch (err) {
+        console.log("Error deleting task from db:", err.message, err.stack);
+        res.status(500).json({ error: err});
+      }
+    });
   // Logout --> Login API Route
   app.get('/logout', (req, res) => {
     req.session.destroy(err => {
