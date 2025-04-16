@@ -69,7 +69,12 @@ db.connect()
     }
     next();
   };
-  
+//extra middleware for navbar
+  app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    console.log('res.locals.user:', res.locals.user);
+    next();
+  });
   app.use(auth);
   // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
