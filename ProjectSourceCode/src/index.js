@@ -69,20 +69,27 @@ db.connect()
     }
     next();
   };
-  
+//extra middleware for navbar
+  app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    console.log('res.locals.user:', res.locals.user);
+    next();
+  });
   app.use(auth);
   // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
-  
+
   app.get('/', (req, res) => {
   if (req.session.user) {
-    return res.redirect('/home'); // Redirect logged-in users to discover
+    return res.redirect('/home'); // Redirect logged-in users to home
   }
   res.redirect('/login'); // Otherwise, go to login page
-  });
+});
 
+app.get('/home', (req, res) => {
+  res.render('pages/home.hbs');
+});
 
-  
 
   // API ROUTES (SAM)
 
@@ -159,24 +166,134 @@ db.connect()
 
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
-    db.any("SELECT * FROM tasks WHERE tasks.user_id = $1;", [
+  
+    // Get from envoronment variable TZ, but handle if TZ is not set
+    // If TZ is not set, use UTC as default
+    const time_zone = process.env.TZ || 'US/Mountain';
+
+    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC' AT TIME ZONE '${time_zone}') = DATE(NOW() AT TIME ZONE '${time_zone}');`;
+    const dailyTasksQuery = db.any(dailySqlQuery, [
       req.session.user.user_id,
-    ])
-      .then((tasks) => {
-        console.log(tasks);
-        res.render("pages/home", { tasks });
+    ]);
+    const upcomingTasksQuery = db.any(
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE;",
+      [req.session.user.user_id]
+    );
+  
+    // Execute both queries concurrently
+    Promise.all([dailyTasksQuery, upcomingTasksQuery])
+      .then(([daily_tasks, upcoming_tasks]) => {
+        console.log("Daily Tasks:", daily_tasks);
+        console.log("Upcoming Tasks:", upcoming_tasks);
+  
+        // Render the home page with both results
+        res.render("pages/home", { daily_tasks, upcoming_tasks });
       })
       .catch((err) => {
-        res.render("pages/courses", {
-          tasks: [],
-          error: true,
-          message: err.message, // TODO Error handle template.
-        });
+        console.error("Error fetching tasks:", err.message);
+        // res.render("pages/courses", {
+        //   tasks: [],
+        //   error: true,
+        //   message: err.message, // TODO Error handle template.
+        // });
       });
-  }); 
+  });
+
+  // get current task info for editting
+  app.get('/tasks/:id', async (req, res) => {
+    const taskId = parseInt(req.params.id, 10);
+    console.log('Fetching task with ID:', taskId);
+  
+    try {
+      const result = await db.any('SELECT * FROM tasks WHERE task_id = $1', [taskId]);
+      console.log('Query result:', result);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+  
+      res.json(result[0]);
+    } catch (err) {
+      console.error('Error fetching task:', err.message, err.stack);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  
+  
+  // upodate editted task info to db
+  app.put('/tasks/:id', async (req, res) => {
+    const taskId = req.params.id;
+    console.log('Task ID received:', taskId);
+
+    const { title, description, due_date, priority, reward } = req.body;
 
   
+    try {
+      
+      await db.query(`
+        UPDATE tasks
+        SET title = $1, description = $2, due_date = $3, priority = $4, rewards = $5
+        WHERE task_id = $6
+      `, [title, description, due_date, priority, reward, taskId]);
+      
+  
+      res.status(200).json({ message: 'Task updated successfully' });
+    } catch (err) {
+      console.error('Error updating task:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.post('/add-event', async (req, res) => {
+    const userId = req.session.user?.user_id;
 
+    const { event_name, category_name, eventDate, event_description, event_priority, event_reward } = req.body;
+    //console.log(req.body);
+    //console.log(userId);
+
+    try {
+      const result = await db.any(
+        `INSERT INTO tasks (title, description, rewards, priority, due_date, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [event_name, event_description, event_reward, event_priority, eventDate, userId]
+      );
+  
+      //refresh the page if adding the event was succesful
+      res.redirect('/calendar');
+    } catch (err) {
+      console.log('Error inserting the event.');
+      res.status(500).json({ error: err}); //500 error for server-side error
+    }
+  });
+
+
+
+  app.get('/get-events', async (req, res) => {
+    const userId = req.session.user?.user_id;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+  
+    try {
+      const events = await db.any(
+        'SELECT task_id, title, due_date as start FROM tasks WHERE user_id = $1',
+        [userId]
+      );
+      
+      res.json(events.map(event => ({
+        title: event.title,
+        start: event.start,
+        extendedProps: {
+          task_id: event.task_id
+        }
+      })));
+
+    } catch (err) {
+      console.log("Error getting events from db:", err.message, err.stack);
+      res.status(500).json({ error: err});
+    }
+  });
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 

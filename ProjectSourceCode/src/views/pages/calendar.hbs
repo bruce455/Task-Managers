@@ -1,51 +1,149 @@
-<div class="calendar-page">
-  <div class="calendar-header">
-    <div class="calendar-info">
-      <p class="current-datetime">Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-04-10 21:21:09</p>
-      <p class="user-login">Current User's Login: {{userLogin}}</p>
-    </div>
-    <div class="calendar-nav">
-      <h1>
-        <button id="prevMonth">◄</button>
-        <span id="currentMonth"></span>
-        <button id="nextMonth">►</button>
-      </h1>
-      <p id="currentYear"></p>
-    </div>
-  </div>
-  <div class="calendar">
-    <div class="day-names-grid">
-      <span class="day-name">Mon</span>
-      <span class="day-name">Tue</span>
-      <span class="day-name">Wed</span>
-      <span class="day-name">Thu</span>
-      <span class="day-name">Fri</span>
-      <span class="day-name">Sat</span>
-      <span class="day-name">Sun</span>
-    </div>
-    <div id="calendar-days">
-      {{!-- Days will be populated by JavaScript --}}
-    </div>
-  </div>
+<style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        padding: 20px;
+      }
+      #calendar {
+        max-width: 900px;
+        margin: 20px auto;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+      }
+      form {
+        max-width: 900px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      form label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      form input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      form button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      form button:hover {
+        background: #0056b3;
+      }
+    </style>
+      <!-- creating the button-->
+      <div class="custom-container">
+                <button
+                class="btn btn-primary mt-3"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+                >
+                Create Event
+                </button>
+                
+            </div>
+      <!-- Modal -->
 
-  <div class="event-section">
-    <button id="addEventBtn" class="add-event-btn">Add Event</button>
+    {{> addTaskModal }}
+    {{> currentTaskModal }}
+
+
+
+    <div id="calendar"></div>
+
     
-    <form id="eventForm" class="event-form">
-      <h2>Add New Event</h2>
-      <label for="eventTitle">Event Title:</label>
-      <input type="text" id="eventTitle" name="eventTitle" required>
+  
+    <script>
+      let calendar;
 
-      <label for="eventStart">Start Date & Time:</label>
-      <input type="datetime-local" id="eventStart" name="eventStart" required>
+        document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          },
+          events: '/get-events',
+          eventClick: async function(info) {
+            info.jsEvent.preventDefault();
+            
+            console.log('taskId:', info.event.extendedProps.task_id);
 
-      <label for="eventEnd">End Date & Time (optional):</label>
-      <input type="datetime-local" id="eventEnd" name="eventEnd">
 
-      <div class="form-buttons">
-        <button type="submit">Add Event</button>
-        <button type="button" id="cancelEventBtn">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
+            const taskId = info.event.extendedProps.task_id;
+            if (!taskId) return;
+
+            try {
+              const response = await fetch(`/tasks/${taskId}`);
+              const task = await response.json();
+
+              document.getElementById('edit-title').value = task.title || '';
+              document.getElementById('edit-description').value = task.description || '';
+              // document.getElementById('edit-due-date').value = task.due_date?.split('T')[0] || '';
+              if (task.due_date) {
+                const date = new Date(task.due_date);
+                const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                  .toISOString()
+                  .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+                document.getElementById('edit-due-date').value = local;
+              }
+
+              document.getElementById('edit-priority').value = task.priority || '';
+              document.getElementById('edit-reward').value = task.rewards || '';
+              document.getElementById('edit-task-id').value = task.task_id || '';
+
+              const modal = new bootstrap.Modal(document.getElementById('edit-task-modal'));
+              modal.show();
+            } catch (err) {
+              console.error('Error loading task for modal:', err);
+            }
+          }
+        });
+        calendar.render();
+      });
+
+      function saveEvent() {
+        const title = document.getElementById('event_name').value;
+        const date = document.getElementById('eventDate').value;
+        const description = document.getElementById('event_description').value;
+        const priority = document.getElementById('event_priority').value;
+        const reward = document.getElementById('event_reward').value;
+
+        if (title && date) {
+          // Add event to calendar
+          calendar.addEvent({
+            title: `${title} [${category}]`,
+            start: date,
+            extendedProps: {
+              description: description,
+              priority: priority,
+              reward: reward
+            }
+          });
+
+          //Reset the form
+          document.getElementById('data-form').reset();
+
+          //close the modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+          modal.hide();
+        } else {
+          alert("Please provide an event title and due date.");
+        }
+      }
+    </script>
+ 
