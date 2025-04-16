@@ -18,6 +18,14 @@ VALUES ('Task1', 'Description for task 1',1,2,'2025-05-15 15:00:00',(SELECT user
 
 INSERT INTO tasks (title, description, rewards, priority, due_date, user_id)   
 VALUES ('Task2', 'Description for task 2',2,2,'2025-04-30 12:30:00',(SELECT user_id FROM users WHERE username = 'samuelharris'));
+INSERT INTO users (rewards_total, username, email, password_hashed) 
+VALUES (5,'user_test_3', 'test_email_3@gmail.com', 'test_password_3');
+
+INSERT INTO users (rewards_total, username, email, password_hashed) 
+VALUES (6,'user_test_4', 'test_email_4@gmail.com', 'test_password_4');
+
+INSERT INTO users (rewards_total, username, email, password_hashed) 
+VALUES (7,'user_test_5', 'test_email_5@gmail.com', 'test_password_5');
 
 INSERT INTO tasks (title, description, rewards, priority, due_date, user_id)   
 VALUES ('Task3', 'Description for task 3',3,2,'2025-04-29 12:30:00',(SELECT user_id FROM users WHERE username = 'samuelharris'));
@@ -50,4 +58,4 @@ VALUES ('Doctor appointment', 'Go see the doctor',10,2,'2025-05-02 12:31:00',(SE
 
 
 INSERT INTO tasks (title, description, rewards, priority, due_date, user_id)
-VALUES ('Brush Teeth', 'brush teeth in am and pm',1,0,'2026-05-02 12:31:00',(SELECT user_id FROM users WHERE username = 'shonadoyle'));
+VALUES ('TaskA', 'Description for task A',1,2,'2025-04-12 14:30:00',(SELECT user_id FROM users WHERE username = 'user_test_2'));
