@@ -10,7 +10,8 @@
       "express-session": "^1.17.3",
       "express-handlebars": "^7.1.2",
       "pg-promise": "^10.11.1",
-      "nodemon": "2.0.20"
+      "nodemon": "2.0.20",
+      "connect-flash": "^0.1.1"
     },
     "scripts": {
       "prestart": "npm install",

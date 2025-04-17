@@ -1,41 +1,86 @@
-<main class="task-columns">
-  <div class="column">
-    <h2>Dailys</h2>
-    <ul>
-      {{#each daily_tasks}}
-        <tr>
-          <td>{{this.title}}</td>
-          <td>{{this.description}}</td>
-          <td>{{this.rewards}}</td>
-          <td>{{this.priority}}</td>
-          <td>{{this.due_date}}</td>
-        </tr>
-      {{/each}}
-    </ul>
-  </div>
-  <div class="column">
-    <h2>Upcoming</h2>
-    <ul>
-      {{#each upcoming_tasks}}
-        <tr>
-          <td>{{this.title}}</td>
-          <td>{{this.description}}</td>
-          <td>{{this.rewards}}</td>
-          <td>{{this.priority}}</td>
-          <td>{{this.due_date}}</td>
-        </tr>
-      {{/each}}
-    </ul>
-  </div>
-</main>
+<!DOCTYPE html>
+<html lang="en">
 
-{{> currentTaskModal }}
-{{> addTaskModal }}
+{{!-- <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- Optional: Add your CSS file -->
+</head> --}}
+<div class="toast-container position-fixed top-0 start-40 p-3" style="z-index: 1060;">
+  {{#each successMessages}}
+    <div class="toast align-items-center text-bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex">
+        <div class="toast-body">{{this}}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  {{/each}}
+</div>
 
+{{#if successMessages.length}}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+  });
+</script>
+{{/if}}
+<body>
+  <main>
+    <div class="tasks-container">
+      <!-- Daily Tasks Column -->
+      <section class="tasks-column">
+        <h2>Daily Tasks</h2>
+        {{#if daily_tasks.length}}
+        <div class="task-list">
+          {{#each daily_tasks}}
+          <div class="task-box">
+            <div class="task-header">
+              <h4 class="task-title">{{title}}</h4>
+              <span class="task-description">{{description}}</span>
+            </div>
+            <div class="task-footer">
+              <p class="task-priority"><strong><i class="fas fa-flag"></i> Priority:</strong> {{priority}}</p>
+              <p class="task-reward"><strong><i class="fas fa-star"></i> Reward:</strong> {{rewards}}</p>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <p>No tasks for today!</p>
+        {{/if}}
+      </section>
 
-<style>
-  .centered-header { text-align: center; margin-top: 20px; } .task-columns {
-  display: flex; justify-content: space-around; margin: 20px; } .column { width:
-  45%; border: 1px solid #ccc; padding: 15px; border-radius: 5px;
-  background-color: #f9f9f9; } .column h2 { text-align: center; }
-</style>
+      <!-- Upcoming Tasks Column -->
+      <section class="tasks-column">
+        <h2>Upcoming Tasks</h2>
+        {{#if upcoming_tasks.length}}
+        <div class="task-list">
+          {{#each upcoming_tasks}}
+          <div class="task-box">
+            <div class="task-header">
+              <h4 class="task-title">{{title}}</h4>
+              <span class="task-description">{{description}}</span>
+            </div>
+            <div class="task-details">
+              <p><strong><i class="fas fa-calendar-alt"></i> Due Date:</strong> {{due_date}}</p>
+            </div>
+            <div class="task-footer">
+              <p class="task-priority"><strong><i class="fas fa-flag"></i> Priority:</strong> {{priority}}</p>
+              <p class="task-reward"><strong><i class="fas fa-star"></i> Reward:</strong> {{rewards}}</p>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <p>No upcoming tasks!</p>
+        {{/if}}
+      </section>
+    </div>
+  </main>
+
+  {{> currentTaskModal }}
+  {{> addTaskModal }}
+</html>
