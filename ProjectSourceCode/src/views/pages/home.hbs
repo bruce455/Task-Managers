@@ -72,9 +72,10 @@
         </div>
 
         {{#if upcoming_tasks.length}}
-        <div class="task-list scrollable-task-list" id="upcoming-tasks" data-task-id="{{task_id}}">
+
+        <div class="task-list scrollable-task-list" id="upcoming-tasks">
           {{#each upcoming_tasks}}
-          <div class="task-box" data-priority="{{priority}}" data-due-date="{{due_date}}">
+          <div class="task-box" data-priority="{{priority}}" data-due-date="{{due_date}}" data-task-id="{{task_id}}">
             <div class="task-header">
               <h4 class="task-title">{{title}}</h4>
               <span class="task-description">{{description}}</span>

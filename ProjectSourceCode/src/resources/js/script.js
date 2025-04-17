@@ -81,3 +81,27 @@ async function openEditModal(taskId) {
     }
   }
   
+  document.addEventListener('DOMContentLoaded', () => {
+    const completeBtn = document.getElementById('complete-task-btn');
+    if (completeBtn) {
+      completeBtn.addEventListener('click', async () => {
+        const taskId = document.getElementById('edit-task-id')?.value;
+        if (!taskId) return;
+  
+        try {
+          const response = await fetch(`/tasks/${taskId}/complete`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+  
+          if (!response.ok) throw new Error('Failed to complete task');
+  
+          bootstrap.Modal.getInstance(document.getElementById('edit-task-modal')).hide();
+          window.location.reload();
+        } catch (err) {
+          console.error('Error completing task:', err);
+        }
+      });
+    }
+  });
+  
