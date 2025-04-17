@@ -7,6 +7,7 @@ const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs'); //  To hash passwords
+const flash = require('connect-flash');  
 
 // -------------------------------------  APP CONFIG   ----------------------------------------------
 
@@ -30,6 +31,7 @@ app.use(
     resave: true,
   })
 );
+app.use(flash()); 
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -70,11 +72,12 @@ db.connect()
     next();
   };
 //extra middleware for navbar
-  app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    console.log('res.locals.user:', res.locals.user);
-    next();
-  });
+app.use((req, res, next) => {
+  res.locals.user            = req.session.user || null;
+  res.locals.successMessages = req.flash('success');
+  res.locals.errorMessages   = req.flash('error');
+  next();
+});
   app.use(auth);
   // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
@@ -84,10 +87,6 @@ db.connect()
     return res.redirect('/home'); // Redirect logged-in users to home
   }
   res.redirect('/login'); // Otherwise, go to login page
-});
-
-app.get('/home', (req, res) => {
-  res.render('pages/home.hbs');
 });
 
 
@@ -120,8 +119,15 @@ app.get('/home', (req, res) => {
         }
     
         // If password matches, save the user in the session and redirect to /discover.
+        const { total_tasks } = await db.one(
+          // ::int casts the text count to an integer
+          'SELECT COUNT(*)::int AS total_tasks FROM tasks WHERE user_id = $1',
+          [user.user_id]
+        );
+        req.session.taskCount = total_tasks;
         req.session.user = user;
-        req.session.save(err => {
+        req.flash('success', `Welcome back, ${user.username}! You have ${total_tasks} tasks remaining.`);
+        req.session.save(err => {     
           if (err) {
             return next(err);
           }
@@ -141,12 +147,13 @@ app.get('/home', (req, res) => {
       const {email, username, password } = req.body;
     
       try {
-        // Hash the password with a salt round of 10.
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Generate same hash on each run - so we can insert test data into the DB and access
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = await bcrypt.hashSync(password, salt);
     
         // Insert the username and hashed password into the users table.
         // Changed the query placeholders to $1 and $2 for pg-promise.
-        const query = 'INSERT INTO users (username, password_hashed, email) VALUES ($1, $2, $3)';
+        const query = 'INSERT INTO users (username, password_hashed, email,rewards_total) VALUES ($1, $2, $3,0)';
         await db.none(query, [username, hashedPassword, email]);
     
         // On success, redirect to the /login route.
@@ -166,36 +173,54 @@ app.get('/home', (req, res) => {
 
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
-  
-    // Get from envoronment variable TZ, but handle if TZ is not set
-    // If TZ is not set, use UTC as default
+    
+    // Get from environment variable TZ, but handle if TZ is not set
+    // If TZ is not set, use UTC as default - should really get it from the browser!
     const time_zone = process.env.TZ || 'US/Mountain';
 
-    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC' AT TIME ZONE '${time_zone}') = DATE(NOW() AT TIME ZONE '${time_zone}');`;
+    
+    // Priority 0 is suppose to mean daily's -> But there is no way to set it in the modal -> instead will insert into the init data.
+    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND tasks.priority = 0;`;
     const dailyTasksQuery = db.any(dailySqlQuery, [
       req.session.user.user_id,
     ]);
     const upcomingTasksQuery = db.any(
-      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE;",
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE AND tasks.priority > 0;",
       [req.session.user.user_id]
+    );
+    const usersQuery = db.any(
+      'SELECT username, rewards_total FROM users ORDER BY rewards_total DESC LIMIT 3',
+      
     );
   
     // Execute both queries concurrently
-    Promise.all([dailyTasksQuery, upcomingTasksQuery])
-      .then(([daily_tasks, upcoming_tasks]) => {
-        console.log("Daily Tasks:", daily_tasks);
-        console.log("Upcoming Tasks:", upcoming_tasks);
-  
+    Promise.all([dailyTasksQuery, upcomingTasksQuery, usersQuery])
+      .then(([daily_tasks, upcoming_tasks,users]) => {
+        //console.log("Daily Tasks:", daily_tasks);
+        //console.log("Upcoming Tasks:", upcoming_tasks);
+        
+        // Clean up the date format
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,           
+        });
+
+        
+        upcoming_tasks.forEach(task => {
+          task.due_date = formatter.format(new Date(task.due_date));
+        });
+        
+
         // Render the home page with both results
-        res.render("pages/home", { daily_tasks, upcoming_tasks });
+        res.render("pages/home", { daily_tasks, upcoming_tasks, users});
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);
-        // res.render("pages/courses", {
-        //   tasks: [],
-        //   error: true,
-        //   message: err.message, // TODO Error handle template.
-        // });
+        res.status(500).send("Error fetching tasks");
       });
   });
 
@@ -293,6 +318,33 @@ app.get('/home', (req, res) => {
       console.log("Error getting events from db:", err.message, err.stack);
       res.status(500).json({ error: err});
     }
+  });
+  app.post('/delete-task', (req, res) => {
+    const taskId = req.body.task_id; 
+
+    if (!taskId) {
+      return res.status(400).send('No task ID found.');
+    }
+    try{
+    db.any('DELETE FROM Tasks WHERE task_id = $1', [taskId])
+      .then(() => {
+        
+        res.redirect('/calendar'); 
+      })
+      } catch (err) {
+        console.log("Error deleting task from db:", err.message, err.stack);
+        res.status(500).json({ error: err});
+      }
+    });
+
+  // Logout --> Login API Route
+  app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+      if (err) {
+        return console.log(err);
+      }
+      res.redirect('/login');
+    });
   });
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
