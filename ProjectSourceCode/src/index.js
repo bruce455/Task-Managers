@@ -153,7 +153,7 @@ app.use((req, res, next) => {
     
         // Insert the username and hashed password into the users table.
         // Changed the query placeholders to $1 and $2 for pg-promise.
-        const query = 'INSERT INTO users (username, password_hashed, email) VALUES ($1, $2, $3)';
+        const query = 'INSERT INTO users (username, password_hashed, email,rewards_total) VALUES ($1, $2, $3,0)';
         await db.none(query, [username, hashedPassword, email]);
     
         // On success, redirect to the /login route.
@@ -173,7 +173,7 @@ app.use((req, res, next) => {
 
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
-  
+    
     // Get from environment variable TZ, but handle if TZ is not set
     // If TZ is not set, use UTC as default - should really get it from the browser!
     const time_zone = process.env.TZ || 'US/Mountain';
@@ -188,10 +188,14 @@ app.use((req, res, next) => {
       "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE AND tasks.priority > 0;",
       [req.session.user.user_id]
     );
+    const usersQuery = db.any(
+      'SELECT username, rewards_total FROM users ORDER BY rewards_total DESC LIMIT 3',
+      
+    );
   
     // Execute both queries concurrently
-    Promise.all([dailyTasksQuery, upcomingTasksQuery])
-      .then(([daily_tasks, upcoming_tasks]) => {
+    Promise.all([dailyTasksQuery, upcomingTasksQuery, usersQuery])
+      .then(([daily_tasks, upcoming_tasks,users]) => {
         //console.log("Daily Tasks:", daily_tasks);
         //console.log("Upcoming Tasks:", upcoming_tasks);
         
@@ -212,7 +216,7 @@ app.use((req, res, next) => {
         
 
         // Render the home page with both results
-        res.render("pages/home", { daily_tasks, upcoming_tasks});
+        res.render("pages/home", { daily_tasks, upcoming_tasks, users});
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);
@@ -315,6 +319,23 @@ app.use((req, res, next) => {
       res.status(500).json({ error: err});
     }
   });
+  app.post('/delete-task', (req, res) => {
+    const taskId = req.body.task_id; 
+
+    if (!taskId) {
+      return res.status(400).send('No task ID found.');
+    }
+    try{
+    db.any('DELETE FROM Tasks WHERE task_id = $1', [taskId])
+      .then(() => {
+        
+        res.redirect('/calendar'); 
+      })
+      } catch (err) {
+        console.log("Error deleting task from db:", err.message, err.stack);
+        res.status(500).json({ error: err});
+      }
+    });
 
   // Logout --> Login API Route
   app.get('/logout', (req, res) => {
