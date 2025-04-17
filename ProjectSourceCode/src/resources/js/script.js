@@ -35,11 +35,13 @@ async function openEditModal(taskId) {
     event.preventDefault();
   
     const taskId = document.getElementById('edit-task-id').value;
+    const priorityValue = document.getElementById('edit-priority').value;
+
     const updatedTask = {
       title: document.getElementById('edit-title').value,
       description: document.getElementById('edit-description').value,
       due_date: document.getElementById('edit-due-date').value,
-      priority: document.getElementById('edit-priority').value,
+      priority: Number(priorityValue), // ← ensure it's sent as a number (0–10)
       reward: document.getElementById('edit-reward').value
     };
   
