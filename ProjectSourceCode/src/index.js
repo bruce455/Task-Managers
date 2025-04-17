@@ -347,6 +347,80 @@ app.use((req, res, next) => {
     });
   });
 
+  // complete task route
+  app.put('/tasks/:id/complete', async (req, res) => {
+    console.log("HIT");
+    const { id } = req.params;
+    console.log(`Completing task ID: ${id}`);
+  
+    try {
+      const result = await db.query(
+        'SELECT priority, rewards, user_id FROM tasks WHERE task_id = $1',
+        [id]
+      );
+  
+      if (result.rowCount === 0) {
+        console.log('Task not found.');
+        return res.status(404).send('Task not found');
+      }
+  
+      // const { priority, rewards, user_id } = result.rows[0];
+      if (!result || result.length === 0) {
+        console.log('Task not found.');
+        return res.status(404).send('Task not found');
+      }
+  
+      const { priority, rewards, user_id } = result[0];
+
+      console.log(`Task info → priority: ${priority}, rewards: ${rewards}, user_id: ${user_id}`);
+  
+      // Update user's rewards_total
+      // await db.query(
+      //   'UPDATE users SET rewards_total = rewards_total + $1 WHERE user_id = $2',
+      //   [rewards, user_id]
+      // );
+      const userResult = await db.query(
+        'SELECT rewards_total FROM users WHERE user_id = $1',
+        [user_id]
+      );
+      
+      let currentTotal = userResult[0]?.rewards_total;
+      
+      if (currentTotal === null || currentTotal === undefined) {
+        console.log('User rewards_total is null. Initializing to 0.');
+        await db.query(
+          'UPDATE users SET rewards_total = $1 WHERE user_id = $2',
+          [0, user_id]
+        );
+        currentTotal = 0;
+      }
+      
+      // Now perform the increment safely
+      const updateResult = await db.result(
+        'UPDATE users SET rewards_total = rewards_total + $1 WHERE user_id = $2',
+        [rewards, user_id]
+      );
+      console.log('Rows affected by rewards update:', updateResult.rowCount);
+
+      const updatedUser = await db.query('SELECT * FROM users WHERE user_id = $1', [user_id]);
+      console.log('Updated user:', updatedUser[0]);
+
+      req.session.user.rewards_total = updatedUser[0].rewards_total;
+
+  
+      // Delete task if it's not a daily one
+      if (priority !== 0) {
+        await db.query('DELETE FROM tasks WHERE task_id = $1', [id]);
+      }
+  
+      res.sendStatus(200);
+    } catch (err) {
+      console.error('Error completing task:', err);
+      res.status(500).send('Error completing task');
+    }
+  });
+  
+
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 
 app.listen(3000);
