@@ -34,3 +34,20 @@ Make edit/current task modal work on home
 Home page should display leaderboard 
 Daily tasks denoted by 0 priority are daily
 Tasks completion functionality - tracking variable?
+
+
+4/17/2025
+Issues with code to fix:
+- adding task on home redirects to calendar (likely because of calendar refresh)
+- same day tasks don't always appear on home
+- find way to make daily tasks show as complete (ideally without changing db but might be impossible)
+- fix add task button
+Past tasks - change databse to have flag for completion
+table of completed tasks (instead of completion tag)
+    - task id, user id, date completed
+    - when loading daily tasks on home remove the completed ones that appear here
+attendance streak tracker - sam
+add profile page with completed tasks
+    - edit profile information
+fix leaderboard alignment 
+remove second ProjectSourceCode from dank2
