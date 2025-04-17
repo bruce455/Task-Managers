@@ -7,7 +7,26 @@
   <title>Home</title>
   <link rel="stylesheet" href="/styles.css"> <!-- Optional: Add your CSS file -->
 </head> --}}
+<div class="toast-container position-fixed top-0 start-40 p-3" style="z-index: 1060;">
+  {{#each successMessages}}
+    <div class="toast align-items-center text-bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex">
+        <div class="toast-body">{{this}}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  {{/each}}
+</div>
 
+{{#if successMessages.length}}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+  });
+</script>
+{{/if}}
 <body>
   <main>
     <div class="tasks-container">
