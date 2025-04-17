@@ -66,9 +66,9 @@
       <section class="tasks-column">
         <h2>Upcoming Tasks</h2>
         {{#if upcoming_tasks.length}}
-        <div class="task-list" data-task-id="{{task_id}}">
+        <div class="task-list">
           {{#each upcoming_tasks}}
-          <div class="task-box">
+          <div class="task-box" data-task-id="{{task_id}}">
             <div class="task-header">
               <h4 class="task-title">{{title}}</h4>
               <span class="task-description">{{description}}</span>
