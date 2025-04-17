@@ -7,6 +7,7 @@ const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs'); //  To hash passwords
+const flash = require('connect-flash');  
 
 // -------------------------------------  APP CONFIG   ----------------------------------------------
 
@@ -30,6 +31,7 @@ app.use(
     resave: true,
   })
 );
+app.use(flash()); 
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -70,11 +72,12 @@ db.connect()
     next();
   };
 //extra middleware for navbar
-  app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    console.log('res.locals.user:', res.locals.user);
-    next();
-  });
+app.use((req, res, next) => {
+  res.locals.user            = req.session.user || null;
+  res.locals.successMessages = req.flash('success');
+  res.locals.errorMessages   = req.flash('error');
+  next();
+});
   app.use(auth);
   // -------------------------------------  ROUTES   ----------------------------------------------
   // catch all route
@@ -116,8 +119,15 @@ db.connect()
         }
     
         // If password matches, save the user in the session and redirect to /discover.
+        const { total_tasks } = await db.one(
+          // ::int casts the text count to an integer
+          'SELECT COUNT(*)::int AS total_tasks FROM tasks WHERE user_id = $1',
+          [user.user_id]
+        );
+        req.session.taskCount = total_tasks;
         req.session.user = user;
-        req.session.save(err => {
+        req.flash('success', `Welcome back, ${user.username}! You have ${total_tasks} tasks remaining.`);
+        req.session.save(err => {     
           if (err) {
             return next(err);
           }
@@ -199,9 +209,10 @@ db.connect()
         upcoming_tasks.forEach(task => {
           task.due_date = formatter.format(new Date(task.due_date));
         });
+        
 
         // Render the home page with both results
-        res.render("pages/home", { daily_tasks, upcoming_tasks });
+        res.render("pages/home", { daily_tasks, upcoming_tasks});
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);

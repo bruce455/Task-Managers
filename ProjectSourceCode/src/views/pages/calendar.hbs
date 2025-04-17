@@ -96,13 +96,21 @@
               // document.getElementById('edit-due-date').value = task.due_date?.split('T')[0] || '';
               if (task.due_date) {
                 const date = new Date(task.due_date);
-                const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-                  .toISOString()
-                  .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+                const local = date.getFullYear() + '-' +
+                  String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                  String(date.getDate()).padStart(2, '0') + 'T' +
+                  String(date.getHours()).padStart(2, '0') + ':' +
+                  String(date.getMinutes()).padStart(2, '0');
                 document.getElementById('edit-due-date').value = local;
+                // const date = new Date(task.due_date).slice(0, 16); // "YYYY-MM-DDTHH:MM"
+                // document.getElementById('edit-due-date').value = local;
               }
 
-              document.getElementById('edit-priority').value = task.priority || '';
+              // document.getElementById('edit-priority').value = task.priority || '';
+              // document.getElementById('edit-priority').value = String(task.priority ?? '');
+              const priorityInput = document.getElementById('edit-priority');
+              if (priorityInput) priorityInput.value = String(task.priority ?? '');
+
               document.getElementById('edit-reward').value = task.rewards || '';
               document.getElementById('edit-task-id').value = task.task_id || '';
 

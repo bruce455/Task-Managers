@@ -1,8 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<div class="toast-container position-fixed top-0 start-40 p-3" style="z-index: 1060;">
+  {{#each successMessages}}
+    <div class="toast align-items-center text-bg-success border-0" role="alert"
+         aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+      <div class="d-flex">
+        <div class="toast-body">{{this}}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  {{/each}}
+</div>
+<div class="custom-container">
+  <button
+    class="btn btn-primary mb-3"
+    data-bs-toggle="modal"
+    data-bs-target="#exampleModal">
+      Create Event
+  </button>                
+</div>
+{{#if successMessages.length}}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+  });
+</script>
+{{/if}}
+
 <body>
   <main>
+    {{!-- <div class="timezone-container text-end mb-3">
+      <p>Your Timezone: <span id="timezone-display"></span></p>
+    </div> --}}
     <div class="tasks-container">
       <!-- Daily Tasks Column -->
       <section class="tasks-column">
@@ -10,7 +41,7 @@
         {{#if daily_tasks.length}}
         <div class="task-list scrollable-task-list">
           {{#each daily_tasks}}
-          <div class="task-box">
+          <div class="task-box" data-task-id="{{task_id}}">
             <div class="task-header">
               <h4 class="task-title">{{title}}</h4>
               <span class="task-description">{{description}}</span>
@@ -29,11 +60,21 @@
 
       <!-- Upcoming Tasks Column -->
       <section class="tasks-column">
-        <h2>Upcoming Tasks</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">Upcoming Tasks</h2>
+          <div class="sorting-container d-flex align-items-center">
+            <label for="sort-upcoming-tasks" class="me-2 fw-bold text-light">Sort By:</label>
+            <select id="sort-upcoming-tasks" class="form-select form-select-sm bg-dark text-light border-0 w-auto">
+              <option value="date">Date/Time</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
+        </div>
+
         {{#if upcoming_tasks.length}}
-        <div class="task-list scrollable-task-list">
+        <div class="task-list scrollable-task-list" id="upcoming-tasks" data-task-id="{{task_id}}">
           {{#each upcoming_tasks}}
-          <div class="task-box">
+          <div class="task-box" data-priority="{{priority}}" data-due-date="{{due_date}}">
             <div class="task-header">
               <h4 class="task-title">{{title}}</h4>
               <span class="task-description">{{description}}</span>
@@ -54,6 +95,59 @@
       </section>
     </div>
   </main>
+
+  <script>
+    // Get the user's timezone and send it to the server
+    document.addEventListener('DOMContentLoaded', () => {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      document.getElementById('timezone-display').textContent = timezone;
+
+      // Send the timezone to the server via an AJAX request
+      fetch('/set-timezone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ timezone }),
+      }).catch(err => console.error('Error sending timezone:', err));
+    });
+
+    const sortSelect = document.getElementById('sort-upcoming-tasks');
+    const taskList = document.getElementById('upcoming-tasks');
+
+    sortSelect.addEventListener('change', () => {
+      const sortBy = sortSelect.value;
+      const tasks = Array.from(taskList.querySelectorAll('.task-box'));
+
+      tasks.sort((a, b) => {
+        if (sortBy === 'date') {
+          const dateA = new Date(a.getAttribute('data-due-date'));
+          const dateB = new Date(b.getAttribute('data-due-date'));
+          return dateA - dateB;
+        } else if (sortBy === 'priority') {
+          const priorityA = parseInt(a.getAttribute('data-priority'), 10);
+          const priorityB = parseInt(b.getAttribute('data-priority'), 10);
+          return priorityB - priorityA;
+        }
+      });
+
+      // Reorder tasks in the DOM
+      tasks.forEach(task => taskList.appendChild(task));
+    });
+  </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.task-box').forEach(taskBox => {
+      taskBox.addEventListener('click', () => {
+        const taskId = taskBox.getAttribute('data-task-id');
+        if (taskId) {
+          openEditModal(taskId);
+        }
+      });
+    });
+  });
+</script>
 
   {{> currentTaskModal }}
   {{> addTaskModal }}
