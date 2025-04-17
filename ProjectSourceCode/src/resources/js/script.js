@@ -12,8 +12,21 @@ async function openEditModal(taskId) {
       // Populate modal fields
       document.getElementById('edit-title').value = task.title;
       document.getElementById('edit-description').value = task.description;
-      document.getElementById('edit-due-date').value = task.due_date?.split('T')[0];
-      document.getElementById('edit-priority').value = task.priority;
+      // document.getElementById('edit-due-date').value = task.due_date?.split('T')[0];
+      if (task.due_date) {
+        const date = new Date(task.due_date);
+        const local = date.getFullYear() + '-' +
+                      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(date.getDate()).padStart(2, '0') + 'T' +
+                      String(date.getHours()).padStart(2, '0') + ':' +
+                      String(date.getMinutes()).padStart(2, '0');
+        document.getElementById('edit-due-date').value = local;
+      }
+      
+      // document.getElementById('edit-priority').value = task.priority;
+      const priorityInput = document.getElementById('edit-priority');
+      if (priorityInput) priorityInput.value = String(task.priority ?? '');
+
       document.getElementById('edit-reward').value = task.rewards;
 
       
@@ -55,9 +68,14 @@ async function openEditModal(taskId) {
       if (!response.ok) throw new Error('Failed to update task');
   
       // Optionally update the calendar view or refresh events
-      calendar.refetchEvents();
-  
+      if (typeof calendar !== 'undefined') {
+        calendar.refetchEvents();
+      }
+        
       bootstrap.Modal.getInstance(document.getElementById('edit-task-modal')).hide();
+
+      // Reload page to reflect task changes
+      window.location.reload();
     } catch (err) {
       console.error('Error saving task changes:', err);
     }
