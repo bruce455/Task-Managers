@@ -393,7 +393,7 @@ main {
   }
   
   .task-box:hover {
-    transform: scale(1.05); /* Slight zoom effect on hover */
+    transform: scale(1.01); /* Slight zoom effect on hover */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
   }
 
