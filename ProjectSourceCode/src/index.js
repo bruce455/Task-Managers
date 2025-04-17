@@ -86,10 +86,6 @@ db.connect()
   res.redirect('/login'); // Otherwise, go to login page
 });
 
-app.get('/home', (req, res) => {
-  res.render('pages/home.hbs');
-});
-
 
   // API ROUTES (SAM)
 
@@ -141,8 +137,9 @@ app.get('/home', (req, res) => {
       const {email, username, password } = req.body;
     
       try {
-        // Hash the password with a salt round of 10.
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Generate same hash on each run - so we can insert test data into the DB and access
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = await bcrypt.hashSync(password, salt);
     
         // Insert the username and hashed password into the users table.
         // Changed the query placeholders to $1 and $2 for pg-promise.
@@ -167,35 +164,48 @@ app.get('/home', (req, res) => {
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
   
-    // Get from envoronment variable TZ, but handle if TZ is not set
-    // If TZ is not set, use UTC as default
+    // Get from environment variable TZ, but handle if TZ is not set
+    // If TZ is not set, use UTC as default - should really get it from the browser!
     const time_zone = process.env.TZ || 'US/Mountain';
 
-    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC' AT TIME ZONE '${time_zone}') = DATE(NOW() AT TIME ZONE '${time_zone}');`;
+    
+    // Priority 0 is suppose to mean daily's -> But there is no way to set it in the modal -> instead will insert into the init data.
+    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND tasks.priority = 0;`;
     const dailyTasksQuery = db.any(dailySqlQuery, [
       req.session.user.user_id,
     ]);
     const upcomingTasksQuery = db.any(
-      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE;",
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE AND tasks.priority > 0;",
       [req.session.user.user_id]
     );
   
     // Execute both queries concurrently
     Promise.all([dailyTasksQuery, upcomingTasksQuery])
       .then(([daily_tasks, upcoming_tasks]) => {
-        console.log("Daily Tasks:", daily_tasks);
-        console.log("Upcoming Tasks:", upcoming_tasks);
-  
+        //console.log("Daily Tasks:", daily_tasks);
+        //console.log("Upcoming Tasks:", upcoming_tasks);
+        
+        // Clean up the date format
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,           
+        });
+
+        
+        upcoming_tasks.forEach(task => {
+          task.due_date = formatter.format(new Date(task.due_date));
+        });
+
         // Render the home page with both results
         res.render("pages/home", { daily_tasks, upcoming_tasks });
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);
-        // res.render("pages/courses", {
-        //   tasks: [],
-        //   error: true,
-        //   message: err.message, // TODO Error handle template.
-        // });
+        res.status(500).send("Error fetching tasks");
       });
   });
 
@@ -293,6 +303,16 @@ app.get('/home', (req, res) => {
       console.log("Error getting events from db:", err.message, err.stack);
       res.status(500).json({ error: err});
     }
+  });
+
+  // Logout --> Login API Route
+  app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+      if (err) {
+        return console.log(err);
+      }
+      res.redirect('/login');
+    });
   });
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------

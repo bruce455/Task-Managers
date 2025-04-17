@@ -1,7 +1,7 @@
 /* Overall Body Styles */
 body {
     background-color: #121212; /* Dark background */
-    color: #545454; /* Softer white text color */
+    color: #938f8f; /* Softer white text color */
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
@@ -138,4 +138,130 @@ body {
         font-size: 0.9rem;
     }
 }
+main {
+    width: 100%; /* Full width of the viewport */
+    max-width: 800px; /* Optional: Set a maximum width */
+    margin: 0 auto; /* Center the content horizontally */
+    padding: 0px; /* Add padding around the content */
+    box-sizing: border-box; /* Include padding in the width calculation */
+  }
 
+  .tasks-container {
+    display: flex; /* Use Flexbox to create columns */
+    justify-content: space-between; /* Add space between the columns */
+    gap: 10px; /* Add spacing between the columns */
+    width: 100%; /* Full width of the parent container */
+    /* max-width: 1200px; */
+    margin: 0;
+    padding: 0px; /* Add padding around the container */
+    box-sizing: border-box; /* Include padding in the width calculation */
+  }
+  
+  /* Individual task columns */
+  .tasks-column {
+    flex: 1; /* Each column takes up equal space */
+    max-width: 48%;  /* Limit the width of each column */
+    width: 100;
+    box-sizing: border-box;
+}
+  
+  /* Task list styles */
+  .task-list {
+    display: flex;
+    flex-direction: column; /* Stack tasks vertically */
+    gap: 15px; /* Add spacing between tasks */
+  }
+  
+  /* Task box styles */
+  .task-box {
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    justify-content: space-between; /* Space out sections */
+    width: 100%; /* Full width of the column */
+    background-color: #1e1e1e; /* Dark background for the box */
+    color: #e0e0e0; /* Light text color */
+    border: 1px solid #333; /* Subtle border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 5px 5px 5px; /* Reduce bottom padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .task-box:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+  }
+
+  .task-header {
+    display: flex;
+    justify-content: space-between; /* Title and description on the same line */
+    align-items: center;
+    margin-bottom: 10px; /* Add spacing below the header */
+  }
+  
+  .task-title {
+    font-size: 1.2rem; /* Larger font for the title */
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .task-description {
+    font-size: 0.9rem; /* Smaller font for the description */
+    color: #a59f9f; /* Lighter color for the description */
+  }
+
+  .task-details {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 5px; /* Add spacing between "Due Date" and "Priority" */
+    /* margin-bottom: 10px; Add spacing below the details section */
+
+    border-bottom: 1px solid #333; /* Add a subtle divider */
+    padding-bottom: 10px; /* Add spacing below the divider */
+  }
+
+  .task-details p strong {
+    color: #ffffff; /* Highlight labels like "Due Date" */
+  }
+
+  .task-details i,
+.task-footer i {
+  margin-right: 5px; /* Add spacing between icon and text */
+  color: #66ccff; /* Match icon color to the theme */
+}
+  
+
+/* Task footer styles */
+.task-footer {
+    display: flex;
+    justify-content: space-between; /* Space out Priority and Reward */
+    align-items: flex-end; /* Align items to the bottom */
+    margin-top: 0; /* Push the footer to the bottom of the task-box */
+    /* padding-top: 0; Remove extra padding at the top */
+    padding-bottom: 0; /* Remove extra padding at the bottom */
+  }
+  
+.task-priority {
+    margin: 0; /* Remove extra margins */
+    padding: 0; /* Ensure no extra padding */
+}
+
+.task-reward {
+  margin: 0; /* Remove extra margins */
+  padding: 0; /* Ensure no extra padding */
+  font-size: 1.1rem; /* Slightly larger font for emphasis */
+  font-weight: bold;
+  color: #00ccff; /* Brighter color for better visibility */
+
+}
+  /* Responsive Design: Stack columns on smaller screens */
+  @media (max-width: 768px) {
+    .tasks-container {
+      flex-direction: column; /* Stack columns vertically */
+      gap: 30px; /* Add spacing between stacked columns */
+    }
+  
+    .tasks-column {
+      max-width: 100%; /* Full width for each column */
+    }
+  }
