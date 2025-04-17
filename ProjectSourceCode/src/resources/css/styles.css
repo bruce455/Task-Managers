@@ -153,6 +153,7 @@ main {
     width: 100%; /* Full width of the parent container */
     /* max-width: 1200px; */
     margin: 0;
+    margin-top: 40px;
     padding: 0px; /* Add padding around the container */
     box-sizing: border-box; /* Include padding in the width calculation */
   }
@@ -163,6 +164,7 @@ main {
     max-width: 48%;  /* Limit the width of each column */
     width: 100;
     box-sizing: border-box;
+    margin-top: 40px;
 }
   
   /* Task list styles */
@@ -264,4 +266,23 @@ main {
     .tasks-column {
       max-width: 100%; /* Full width for each column */
     }
+  }
+
+  .scrollable-task-list {
+    max-height: 70vh; 
+    overflow-y: auto;
+    padding-right: 10px; 
+  }
+  
+  .scrollable-task-list::-webkit-scrollbar {
+    width: 8px; 
+  }
+  
+  .scrollable-task-list::-webkit-scrollbar-thumb {
+    background-color: #ccc; 
+    border-radius: 4px;
+  }
+  
+  .scrollable-task-list::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa; 
   }

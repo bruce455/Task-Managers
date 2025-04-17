@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{{!-- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
-  <link rel="stylesheet" href="/styles.css"> <!-- Optional: Add your CSS file -->
-</head> --}}
-
 <body>
   <main>
     <div class="tasks-container">
@@ -15,7 +8,7 @@
       <section class="tasks-column">
         <h2>Daily Tasks</h2>
         {{#if daily_tasks.length}}
-        <div class="task-list">
+        <div class="task-list scrollable-task-list">
           {{#each daily_tasks}}
           <div class="task-box">
             <div class="task-header">
@@ -38,7 +31,7 @@
       <section class="tasks-column">
         <h2>Upcoming Tasks</h2>
         {{#if upcoming_tasks.length}}
-        <div class="task-list">
+        <div class="task-list scrollable-task-list">
           {{#each upcoming_tasks}}
           <div class="task-box">
             <div class="task-header">
