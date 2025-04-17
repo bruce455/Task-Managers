@@ -173,7 +173,7 @@ app.use((req, res, next) => {
 
   app.get("/home", auth, (req, res) => {
     console.log(req.session.user);
-  
+    
     // Get from environment variable TZ, but handle if TZ is not set
     // If TZ is not set, use UTC as default - should really get it from the browser!
     const time_zone = process.env.TZ || 'US/Mountain';
