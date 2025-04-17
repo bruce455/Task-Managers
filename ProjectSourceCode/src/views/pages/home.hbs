@@ -20,6 +20,15 @@
   {{/each}}
 </div>
 
+<div class="custom-container">
+  <button
+    class="btn btn-primary mb-3"
+    data-bs-toggle="modal"
+    data-bs-target="#exampleModal">
+      Create Event
+  </button>                
+</div>
+
 {{#if successMessages.length}}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -36,7 +45,7 @@
         {{#if daily_tasks.length}}
         <div class="task-list">
           {{#each daily_tasks}}
-          <div class="task-box">
+          <div class="task-box" data-task-id="{{task_id}}">
             <div class="task-header">
               <h4 class="task-title">{{title}}</h4>
               <span class="task-description">{{description}}</span>
@@ -57,7 +66,7 @@
       <section class="tasks-column">
         <h2>Upcoming Tasks</h2>
         {{#if upcoming_tasks.length}}
-        <div class="task-list">
+        <div class="task-list" data-task-id="{{task_id}}">
           {{#each upcoming_tasks}}
           <div class="task-box">
             <div class="task-header">
@@ -83,4 +92,18 @@
 
   {{> currentTaskModal }}
   {{> addTaskModal }}
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.task-box').forEach(taskBox => {
+      taskBox.addEventListener('click', () => {
+        const taskId = taskBox.getAttribute('data-task-id');
+        if (taskId) {
+          openEditModal(taskId);
+        }
+      });
+    });
+  });
+</script>
+
 </html>
