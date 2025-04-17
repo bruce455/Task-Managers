@@ -95,10 +95,7 @@
               document.getElementById('edit-description').value = task.description || '';
               // document.getElementById('edit-due-date').value = task.due_date?.split('T')[0] || '';
               if (task.due_date) {
-                const date = new Date(task.due_date);
-                const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-                  .toISOString()
-                  .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+                const date = new Date(task.due_date).slice(0, 16); // "YYYY-MM-DDTHH:MM"
                 document.getElementById('edit-due-date').value = local;
               }
 
