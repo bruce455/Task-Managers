@@ -419,7 +419,24 @@ app.use((req, res, next) => {
       res.status(500).send('Error completing task');
     }
   });
+  app.get('/profile', async (req, res) => {
+    console.log(req.session.user);
+
+    
+    try {
+      const users = await db.any(
+        'SELECT username, rewards_total FROM users ORDER BY rewards_total DESC LIMIT 3'
+      );
   
+      
+      res.render('pages/profile', { topUsers: users }); 
+    } catch (err) {
+      console.error("Error fetching top users from db:", err.message, err.stack);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 
