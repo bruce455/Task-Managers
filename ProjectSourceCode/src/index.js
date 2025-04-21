@@ -306,8 +306,13 @@ app.use((req, res, next) => {
     }
   
     try {
+      // get current events excluding completed dailies
       const events = await db.any(
-        'SELECT task_id, title, due_date as start FROM tasks WHERE user_id = $1',
+        `SELECT task_id, title, due_date as start FROM tasks WHERE user_id = $1
+        AND NOT EXISTS (
+          SELECT 1 FROM completed WHERE completed.user_id = tasks.user_id
+          AND completed.title = tasks.title
+          AND completed.priority = tasks.priority);`,
         [userId]
       );
       
