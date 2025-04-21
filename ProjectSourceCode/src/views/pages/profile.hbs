@@ -1,0 +1,64 @@
+<head>
+  <style>
+    main {
+      display: flex;
+      flex-direction: column; /* Stack elements vertically */
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      gap: 20px; /* Space between table and task list */
+    }
+    table {
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 10px 20px;
+    }
+    h2 {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <table>
+      <tr><th>Username:</th></tr>
+      <tr><td>{{topUsers.[0].username}}</td></tr>
+      <tr><th>Email:</th></tr>
+      <tr><td>{{topUsers.[0].email}}</td></tr>
+      <tr><th>user_id:</th></tr>
+      <tr><td>{{topUsers.[0].user_id}}</td></tr>
+      <tr><th>Reward Points:</th></tr>
+      <tr><td>{{topUsers.[0].rewards_total}}</td></tr>
+    </table>
+    {{#if this.tasks.length}}
+    <h2 style="text-align: center;">Completed Task List</h2>
+
+    <table class="table table-dark">
+      <tbody>
+        <tr>
+      <th>Task name</th>
+      <th>Description</th>
+      <th>Rewards</th>
+      <th>Priority</th>
+      <th>Due date</th>
+        </tr>
+        {{#each tasks}}
+        <tr>
+          <td>{{this.title}}</td>
+        
+          <td>{{this.description}}</td>
+       
+          <td>{{this.rewards}}</td>
+        
+          <td>{{this.priority}}</td>
+        
+          <td>{{this.due_date}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+  </main>
+</body>

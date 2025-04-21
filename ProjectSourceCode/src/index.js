@@ -419,7 +419,33 @@ app.use((req, res, next) => {
       res.status(500).send('Error completing task');
     }
   });
+  app.get('/profile', async (req, res) => {
+    console.log(req.session.user);
+    const userId = req.session.user?.user_id;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+    
+    try {
+      const users = await db.any(
+        'SELECT * FROM users WHERE user_id = $1',
+        [userId]
+    
+      );
+      const tasks = await db.any(
+        'SELECT * FROM Completed WHERE user_id = $1',
+      [userId]
+    );
   
+      console.log(users)
+      res.render('pages/profile', { topUsers: users, tasks:tasks }); 
+    } catch (err) {
+      console.error("Error fetching top users from db:", err.message, err.stack);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+
 
   // -------------------------------------  START THE SERVER   ----------------------------------------------
 
