@@ -180,12 +180,17 @@ app.use((req, res, next) => {
 
     
     // Priority 0 is suppose to mean daily's -> But there is no way to set it in the modal -> instead will insert into the init data.
-    var dailySqlQuery = `SELECT * FROM tasks WHERE tasks.user_id = $1 AND tasks.priority = 0;`;
+    var dailySqlQuery = `
+      SELECT * FROM tasks WHERE tasks.user_id = $1 AND tasks.priority = 0
+      AND NOT EXISTS (
+        SELECT 1 FROM completed WHERE completed.user_id = tasks.user_id
+        AND completed.title = tasks.title
+        AND completed.priority = tasks.priority);`;
     const dailyTasksQuery = db.any(dailySqlQuery, [
       req.session.user.user_id,
     ]);
     const upcomingTasksQuery = db.any(
-      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') > CURRENT_DATE AND tasks.priority > 0;",
+      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') >= CURRENT_DATE AND tasks.priority > 0;",
       [req.session.user.user_id]
     );
     const usersQuery = db.any(
@@ -355,14 +360,9 @@ app.use((req, res, next) => {
   
     try {
       const result = await db.query(
-        'SELECT priority, rewards, user_id FROM tasks WHERE task_id = $1',
+        'SELECT * FROM tasks WHERE task_id = $1',
         [id]
       );
-  
-      if (result.rowCount === 0) {
-        console.log('Task not found.');
-        return res.status(404).send('Task not found');
-      }
   
       // const { priority, rewards, user_id } = result.rows[0];
       if (!result || result.length === 0) {
@@ -370,15 +370,18 @@ app.use((req, res, next) => {
         return res.status(404).send('Task not found');
       }
   
-      const { priority, rewards, user_id } = result[0];
+      const { title, description, rewards, priority, due_date, user_id } = result[0];
 
       console.log(`Task info → priority: ${priority}, rewards: ${rewards}, user_id: ${user_id}`);
   
+      // insert into completed table
+      await db.query(
+        `INSERT INTO completed (title, description, rewards, priority, due_date, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [title, description, rewards, priority, due_date, user_id]
+      );
+
       // Update user's rewards_total
-      // await db.query(
-      //   'UPDATE users SET rewards_total = rewards_total + $1 WHERE user_id = $2',
-      //   [rewards, user_id]
-      // );
       const userResult = await db.query(
         'SELECT rewards_total FROM users WHERE user_id = $1',
         [user_id]
@@ -392,20 +395,19 @@ app.use((req, res, next) => {
           'UPDATE users SET rewards_total = $1 WHERE user_id = $2',
           [0, user_id]
         );
-        currentTotal = 0;
+        // currentTotal = 0;
       }
       
-      // Now perform the increment safely
-      const updateResult = await db.result(
+      // Increment rewards_total by rewards
+      const updateResult = await db.query(
         'UPDATE users SET rewards_total = rewards_total + $1 WHERE user_id = $2',
         [rewards, user_id]
       );
       console.log('Rows affected by rewards update:', updateResult.rowCount);
 
       const updatedUser = await db.query('SELECT * FROM users WHERE user_id = $1', [user_id]);
-      console.log('Updated user:', updatedUser[0]);
-
       req.session.user.rewards_total = updatedUser[0].rewards_total;
+      console.log('Updated user:', updatedUser[0]);
 
   
       // Delete task if it's not a daily one
@@ -419,6 +421,7 @@ app.use((req, res, next) => {
       res.status(500).send('Error completing task');
     }
   });
+
   app.get('/profile', async (req, res) => {
     console.log(req.session.user);
     const userId = req.session.user?.user_id;
