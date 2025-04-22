@@ -193,16 +193,10 @@ app.use((req, res, next) => {
       "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') >= CURRENT_DATE AND tasks.priority > 0;",
       [req.session.user.user_id]
     );
-    const usersQuery = db.any(
-      'SELECT username, rewards_total FROM users ORDER BY rewards_total DESC LIMIT 3',
-      
-    );
   
     // Execute both queries concurrently
-    Promise.all([dailyTasksQuery, upcomingTasksQuery, usersQuery])
-      .then(([daily_tasks, upcoming_tasks,users]) => {
-        //console.log("Daily Tasks:", daily_tasks);
-        //console.log("Upcoming Tasks:", upcoming_tasks);
+    Promise.all([dailyTasksQuery, upcomingTasksQuery])
+      .then(([daily_tasks, upcoming_tasks]) => {
         
         // Clean up the date format
         const formatter = new Intl.DateTimeFormat('en-US', {
@@ -220,8 +214,8 @@ app.use((req, res, next) => {
         });
         
 
+        res.render("pages/home", { daily_tasks, upcoming_tasks});
         // Render the home page with both results
-        res.render("pages/home", { daily_tasks, upcoming_tasks, users});
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);
@@ -447,6 +441,20 @@ app.use((req, res, next) => {
   
       console.log(users)
       res.render('pages/profile', { topUsers: users, tasks:tasks }); 
+    } catch (err) {
+      console.error("Error fetching top users from db:", err.message, err.stack);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // leaderboard API route 
+  app.get('/leaderboard', async (req, res) => {
+  
+    try {
+      const users = await db.any(
+        'SELECT username, rewards_total FROM users ORDER BY rewards_total DESC LIMIT 5'
+      );
+      res.render('pages/leaderboard', { users });
     } catch (err) {
       console.error("Error fetching top users from db:", err.message, err.stack);
       res.status(500).json({ error: err.message });
