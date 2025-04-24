@@ -11,7 +11,10 @@
     </div>
   {{/each}}
 </div>
-
+<!-- completed-tasks counter -->
+  <div class="text-center my-3">
+    <h3>You’ve completed <span class="badge bg-success">{{completedCount}}</span> tasks!</h3>
+  </div>
 {{#if successMessages.length}}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
