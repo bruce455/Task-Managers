@@ -124,9 +124,15 @@ app.use((req, res, next) => {
           'SELECT COUNT(*)::int AS total_tasks FROM tasks WHERE user_id = $1',
           [user.user_id]
         );
+        const { daily_tasks } = await db.one(
+          // ::int casts the text count to an integer
+          'SELECT COUNT(*)::int AS daily_tasks FROM tasks WHERE user_id = $1 AND priority = 0',
+          [user.user_id]
+        );
         req.session.taskCount = total_tasks;
+        req.session.daily_tasks = daily_tasks;
         req.session.user = user;
-        req.flash('success', `Welcome back, ${user.username}! You have ${total_tasks} tasks remaining.`);
+        req.flash('success', `Welcome back, ${user.username}! You have ${total_tasks - daily_tasks} Upcoming Tasks.`);
         req.session.save(err => {     
           if (err) {
             return next(err);
@@ -172,57 +178,69 @@ app.use((req, res, next) => {
   });
 
   app.get("/home", auth, (req, res) => {
-    console.log(req.session.user);
-    
-    // Get from environment variable TZ, but handle if TZ is not set
-    // If TZ is not set, use UTC as default - should really get it from the browser!
-    const time_zone = process.env.TZ || 'US/Mountain';
-
-    
-    // Priority 0 is suppose to mean daily's -> But there is no way to set it in the modal -> instead will insert into the init data.
-    var dailySqlQuery = `
-      SELECT * FROM tasks WHERE tasks.user_id = $1 AND tasks.priority = 0
-      AND NOT EXISTS (
-        SELECT 1 FROM completed WHERE completed.user_id = tasks.user_id
-        AND completed.title = tasks.title
-        AND completed.priority = tasks.priority);`;
-    const dailyTasksQuery = db.any(dailySqlQuery, [
-      req.session.user.user_id,
-    ]);
-    const upcomingTasksQuery = db.any(
-      "SELECT * FROM tasks WHERE tasks.user_id = $1 AND DATE(tasks.due_date AT TIME ZONE 'UTC') >= CURRENT_DATE AND tasks.priority > 0;",
-      [req.session.user.user_id]
+    const userId = req.session.user.user_id;
+  
+    const dailyTasksQuery = db.any(
+      `
+        SELECT *
+        FROM tasks
+        WHERE user_id = $1
+          AND priority = 0
+          AND NOT EXISTS (
+            SELECT 1
+            FROM completed
+            WHERE completed.user_id = tasks.user_id
+              AND completed.title = tasks.title
+              AND completed.priority = tasks.priority
+          );
+      `,
+      [userId]
     );
   
-    // Execute both queries concurrently
-    Promise.all([dailyTasksQuery, upcomingTasksQuery])
-      .then(([daily_tasks, upcoming_tasks]) => {
-        
-        // Clean up the date format
-        const formatter = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,           
+    const upcomingTasksQuery = db.any(
+      `
+        SELECT *
+        FROM tasks
+        WHERE user_id = $1
+          AND DATE(due_date AT TIME ZONE 'UTC') >= CURRENT_DATE
+          AND priority > 0;
+      `,
+      [userId]
+    );
+  
+    const completedCountQuery = db.one(
+      `SELECT COUNT(*)::int AS completed_count
+       FROM completed
+       WHERE user_id = $1;`,
+      [userId]
+    );
+  
+    Promise.all([dailyTasksQuery, upcomingTasksQuery, completedCountQuery])
+      .then(([daily_tasks, upcoming_tasks, { completed_count }]) => {
+        const formatter = new Intl.DateTimeFormat("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
         });
-
-        
-        upcoming_tasks.forEach(task => {
+  
+        upcoming_tasks.forEach((task) => {
           task.due_date = formatter.format(new Date(task.due_date));
         });
-        
-
-        res.render("pages/home", { daily_tasks, upcoming_tasks});
-        // Render the home page with both results
+  
+        res.render("pages/home", {
+          daily_tasks,
+          upcoming_tasks,
+          completedCount: completed_count,
+        });
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err.message);
         res.status(500).send("Error fetching tasks");
       });
   });
-
   // get current task info for editting
   app.get('/tasks/:id', async (req, res) => {
     const taskId = parseInt(req.params.id, 10);
