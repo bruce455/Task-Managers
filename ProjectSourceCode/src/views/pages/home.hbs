@@ -1,4 +1,3 @@
-
 <div class="toast-container position-fixed top-0 start-40 p-3" style="z-index: 1060;">
   {{#each successMessages}}
     <div class="toast align-items-center text-bg-success border-0" role="alert"
@@ -127,7 +126,8 @@
     // Get the user's timezone and send it to the server
     document.addEventListener('DOMContentLoaded', () => {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      document.getElementById('timezone-display').textContent = timezone;
+      const tzDisplay = document.getElementById('timezone-display');
+      if (tzDisplay) tzDisplay.textContent = timezone;
 
       // Send the timezone to the server via an AJAX request
       fetch('/set-timezone', {
@@ -142,25 +142,27 @@
     const sortSelect = document.getElementById('sort-upcoming-tasks');
     const taskList = document.getElementById('upcoming-tasks');
 
-    sortSelect.addEventListener('change', () => {
-      const sortBy = sortSelect.value;
-      const tasks = Array.from(taskList.querySelectorAll('.task-box'));
+    if (sortSelect && taskList) {
+      sortSelect.addEventListener('change', () => {
+        const sortBy = sortSelect.value;
+        const tasks = Array.from(taskList.querySelectorAll('.task-box'));
 
-      tasks.sort((a, b) => {
-        if (sortBy === 'date') {
-          const dateA = new Date(a.getAttribute('data-due-date'));
-          const dateB = new Date(b.getAttribute('data-due-date'));
-          return dateA - dateB;
-        } else if (sortBy === 'priority') {
-          const priorityA = parseInt(a.getAttribute('data-priority'), 10);
-          const priorityB = parseInt(b.getAttribute('data-priority'), 10);
-          return priorityB - priorityA;
-        }
+        tasks.sort((a, b) => {
+          if (sortBy === 'date') {
+            const dateA = new Date(a.getAttribute('data-due-date'));
+            const dateB = new Date(b.getAttribute('data-due-date'));
+            return dateA - dateB;
+          } else if (sortBy === 'priority') {
+            const priorityA = parseInt(a.getAttribute('data-priority'), 10);
+            const priorityB = parseInt(b.getAttribute('data-priority'), 10);
+            return priorityB - priorityA;
+          }
+        });
+
+        // Reorder tasks in the DOM
+        tasks.forEach(task => taskList.appendChild(task));
       });
-
-      // Reorder tasks in the DOM
-      tasks.forEach(task => taskList.appendChild(task));
-    });
+    }
   </script>
 
 <script>
