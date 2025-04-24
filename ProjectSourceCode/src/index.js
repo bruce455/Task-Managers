@@ -6,6 +6,7 @@ const path       = require('path');
 const pgp        = require('pg-promise')();
 const session    = require('express-session');
 const flash      = require('connect-flash');
+const bcrypt     = require('bcryptjs');      // ← NEW (for profile updates)
 
 // ---------------------------------- APP CONFIG ------------------------------------
 const hbs = handlebars.create({
@@ -19,8 +20,12 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'resources')));
 
+// serve static files
+app.use(express.static(path.join(__dirname, 'resources')));
+app.use(express.static(path.join(__dirname, 'public')));  // ← NEW (css/js/images)
+
+/* session & flash */
 app.use(session({
   secret           : process.env.SESSION_SECRET,
   saveUninitialized: true,
@@ -70,8 +75,10 @@ app.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
     const user = await db.oneOrNone('SELECT * FROM users WHERE username=$1', [username]);
     if (!user) return res.redirect('/register');
-    const ok = await require('bcryptjs').compare(password, user.password_hashed);
+
+    const ok = await bcrypt.compare(password, user.password_hashed);
     if (!ok) return res.render('pages/login', { error: 'Password incorrect.' });
+
     req.session.user = user;
     req.flash('success', `Welcome, ${user.username}!`);
     req.session.save(err => err ? next(err) : res.redirect('/home'));
@@ -81,7 +88,7 @@ app.get('/register', (_, res) => res.render('pages/register'));
 app.post('/register', async (req, res) => {
   const { email, username, password } = req.body;
   try {
-    const hash = await require('bcryptjs').hash(password, 10);
+    const hash = await bcrypt.hash(password, 10);
     await db.none(
       'INSERT INTO users (username,password_hashed,email,rewards_total) VALUES($1,$2,$3,0)',
       [username, hash, email]
@@ -211,6 +218,67 @@ app.put('/tasks/:id', async (req, res) => {
   }
 });
 
-// ... (your delete, complete, profile, leaderboard, logout routes)
+// ------------------------------ PROFILE ROUTES ------------------------------------
+
+// GET /profile  – show user info + completed assignments
+app.get('/profile', async (req, res) => {
+  const uid = req.session.user.user_id;
+  try {
+    const user  = await db.one(
+      'SELECT user_id, username, email, rewards_total FROM users WHERE user_id=$1',
+      [uid]
+    );
+
+    const tasks = await db.any(
+      `SELECT title, description, rewards, priority,
+              to_char(due_date,'YYYY-MM-DD HH24:MI') AS due_date
+         FROM completed
+        WHERE user_id=$1
+     ORDER BY due_date DESC`,
+      [uid]
+    );
+
+    res.render('pages/profile', { user, tasks });
+  } catch (e) {
+    console.error('Profile load error:', e);
+    res.status(500).send('Error loading profile');
+  }
+});
+
+// POST /profile  – update username / email / password
+app.post('/profile', async (req, res) => {
+  const uid = req.session.user.user_id;
+  const { username, email, password } = req.body;
+
+  const updates = [];
+  const params  = [];
+  let   idx     = 1;            // keep track of $ placeholders (starts at 1)
+
+  if (username) { updates.push(`username=$${++idx}`); params.push(username.trim()); }
+  if (email)    { updates.push(`email=$${++idx}`   ); params.push(email.trim());    }
+  if (password) {
+    const hash = await bcrypt.hash(password.trim(), 10);
+    updates.push(`password_hashed=$${++idx}`);
+    params.push(hash);
+  }
+
+  if (!updates.length) {
+    return res.status(400).json({ success: false, error: 'Nothing to update.' });
+  }
+
+  try {
+    await db.none(`UPDATE users SET ${updates.join(', ')} WHERE user_id=$1`, [uid, ...params]);
+    const user = await db.one(
+      'SELECT user_id, username, email, rewards_total FROM users WHERE user_id=$1', [uid]
+    );
+    req.session.user = user;               // keep session in sync
+    res.json({ success: true, user });
+  } catch (e) {
+    console.error('Profile update error:', e);
+    res.status(500).json({ success: false, error: 'Internal error' });
+  }
+});
+
+// ... (any remaining delete, complete, leaderboard, logout routes)
 
 app.listen(3000, () => console.log('Server listening on 3000'));
